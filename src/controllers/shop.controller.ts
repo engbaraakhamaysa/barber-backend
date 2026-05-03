@@ -79,3 +79,17 @@ export const deleteShop = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting shop" });
   }
 };
+
+export const loginShop = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    const shop = await ShopModel.login(email, password);
+    if (!shop) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    res.status(200).json(shop);
+  } catch (error) {
+    res.status(500).json({ message: "Error logging in" });
+  }
+};
