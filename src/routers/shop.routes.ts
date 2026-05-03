@@ -5,6 +5,7 @@ import {
   getAllShops,
   getShopById,
   updateShop,
+  loginShop,
 } from "../controllers/shop.controller";
 
 const router = Router();
@@ -23,5 +24,7 @@ router.put("/:id", updateShop);
 
 // DELETE
 router.delete("/:id", deleteShop);
+
+router.post("/login", loginShop);
 
 export default router;

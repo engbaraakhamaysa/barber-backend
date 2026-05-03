@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import shopRoutes from "./routers/shop.routes";
 import chairRoutes from "./routers/chair.routes";
 import queueRoutes from "./routers/queue.routes";
@@ -6,6 +7,8 @@ import customerRoutes from "./routers/customer.routes";
 import bookingRoutes from "./routers/booking.routes";
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 

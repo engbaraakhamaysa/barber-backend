@@ -109,4 +109,22 @@ export class ShopModel {
       throw error;
     }
   }
+
+  static async login(
+    email: string,
+    password: string,
+  ): Promise<Shop | undefined> {
+    const sql = `
+    SELECT * FROM shops
+    WHERE email = $1 AND password = $2
+  `;
+
+    try {
+      const result = await pool.query(sql, [email, password]);
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error logging in:", error);
+      throw error;
+    }
+  }
 }
