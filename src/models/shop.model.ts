@@ -1,130 +1,45 @@
 import pool from "../db";
 
-export interface Shop {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  location: string;
-  created_at: Date;
-}
+// Why static methods?
+// ✔ We don't need to create an instance using `new ShopModel()`
+// ✔ We can call methods directly like: ShopModel.getAll()
+// ✔ Cleaner and simpler inside controllers
+// ✔ Common pattern in Node.js backend architectures (clean architecture)
+// ✔ Reduces unnecessary object creation (better for simple data access layers)
+//
+// 📌 Example:
+// const shops = await ShopModel.getAll();
+// const shop = await ShopModel.getById(1);
 
 export class ShopModel {
-  //CREATE NEW SHOP
-  static async create(
-    name: string,
-    email: string,
-    password: string,
-    location: string,
-  ): Promise<Shop> {
+  static async create(name: string, location: string) {
     const sql = `
-      INSERT INTO shops (name, email, password, location)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO shops (name, location)
+      VALUES ($1, $2)
       RETURNING *
     `;
 
-    try {
-      const result = await pool.query(sql, [name, email, password, location]);
-
-      return result.rows[0];
-    } catch (error) {
-      console.error("Error creating shop:", error);
-      throw error;
-    }
+    const result = await pool.query(sql, [name, location]);
+    return result.rows[0];
   }
 
-  //GET ALL SHOP ORDER BY ID
-  static async getAll(): Promise<Shop[]> {
+  static async getAll() {
     const sql = `
-    SELECT * FROM shops
-    ORDER BY id ASC
-  `;
-
-    try {
-      const result = await pool.query(sql);
-
-      return result.rows;
-    } catch (error) {
-      console.error("Error getting shops:", error);
-      throw error;
-    }
-  }
-
-  //DET SHOP BY ID
-  static async getById(id: number): Promise<Shop | undefined> {
-    const sql = `
-    SELECT * FROM shops
-    WHERE id = $1
-  `;
-
-    try {
-      const result = await pool.query(sql, [id]);
-
-      return result.rows[0];
-    } catch (error) {
-      console.error("Error getting shop by id:", error);
-      throw error;
-    }
-  }
-  //UPDATE INFO Shop
-  static async update(
-    id: number,
-    name: string,
-    email: string,
-    location: string,
-  ): Promise<Shop | undefined> {
-    const sql = `
-    UPDATE shops
-    SET name = $1,
-        email = $2,
-        location = $3
-    WHERE id = $4
-    RETURNING *
-  `;
-
-    try {
-      const result = await pool.query(sql, [name, email, location, id]);
-
-      return result.rows[0];
-    } catch (error) {
-      console.error("Error updating shop:", error);
-      throw error;
-    }
-  }
-
-  //DELETE SHOP
-  static async delete(id: number): Promise<Shop> {
-    const sql = `
-                    DELETE FROM shops
-                    WHERE id = $1
-                    RETURNING *
+      SELECT * FROM shops
+      ORDER BY id DESC
     `;
 
-    try {
-      const result = await pool.query(sql, [id]);
-
-      return result.rows[0];
-    } catch (error) {
-      console.log("Error deleting shop:", error);
-      throw error;
-    }
+    const result = await pool.query(sql);
+    return result.rows;
   }
 
-  static async login(
-    email: string,
-    password: string,
-  ): Promise<Shop | undefined> {
+  static async getById(id: number) {
     const sql = `
-    SELECT * FROM shops
-    WHERE email = $1 AND password = $2
-  `;
+      SELECT * FROM shops
+      WHERE id = $1
+    `;
 
-    try {
-      const result = await pool.query(sql, [email, password]);
-      return result.rows[0];
-    } catch (error) {
-      console.error("Error logging in:", error);
-      throw error;
-    }
+    const result = await pool.query(sql, [id]);
+    return result.rows[0];
   }
 }
