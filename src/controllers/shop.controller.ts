@@ -42,4 +42,24 @@ export class ShopController {
       res.status(500).json({ message: "Failed to get shop" });
     }
   }
+
+  static async deleteByID(req: Request, res: Response) {
+    const { id } = req.params;
+
+    try {
+      const shop = await ShopModel.deleteById(Number(id));
+
+      if (!shop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+
+      return res.status(200).json({
+        message: "Shop deleted successfully",
+        shop,
+      });
+    } catch (error) {
+      console.error("Controller error (deleteById):", error);
+      res.status(500).json({ message: "Failed to delete shop" });
+    }
+  }
 }
