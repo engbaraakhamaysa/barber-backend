@@ -2,21 +2,15 @@ import { ShopModel } from "../models/shop.model";
 import { Request, Response } from "express";
 
 export class ShopController {
-  static async getAll(req: Request, res: Response) {
-    try {
-      const shops = await ShopModel.getAll();
-      res.status(200).json(shops);
-    } catch (error) {
-      console.error("Controller Error (getAll):", error);
-      res.status(500).json({ message: "Failed to get shops" });
-    }
-  }
+  /////////////////////////////////////////////////////////
+  //                  CREATE NEW SHOP                    //
+  /////////////////////////////////////////////////////////
 
   static async create(req: Request, res: Response) {
     const { name, location } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
+    if (!name || !location) {
+      return res.status(400).json({ message: "Values is required" });
     }
     try {
       const shop = await ShopModel.create(name, location);
@@ -27,10 +21,35 @@ export class ShopController {
     }
   }
 
+  /////////////////////////////////////////////////////////
+  //                  GET All Shops                      //
+  /////////////////////////////////////////////////////////
+
+  static async getAll(req: Request, res: Response) {
+    try {
+      const shops = await ShopModel.getAll();
+      res.status(200).json(shops);
+    } catch (error) {
+      console.error("Controller Error (getAll):", error);
+      res.status(500).json({ message: "Failed to get shops" });
+    }
+  }
+
+  /////////////////////////////////////////////////////////
+  //                  GET Shop By ID                     //
+  /////////////////////////////////////////////////////////
+
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
+
+    const shopId = Number(id);
+
+    if (isNaN(shopId)) {
+      return res.status(400).json({ message: "Invalid shop id" });
+    }
+
     try {
-      const shop = await ShopModel.getById(Number(id));
+      const shop = await ShopModel.getById(shopId);
 
       if (!shop) {
         return res.status(404).json({ message: "Shop not found" });
@@ -43,11 +62,21 @@ export class ShopController {
     }
   }
 
-  static async deleteByID(req: Request, res: Response) {
+  /////////////////////////////////////////////////////////
+  //                  DELETE Shop By ID                  //
+  /////////////////////////////////////////////////////////
+
+  static async deleteById(req: Request, res: Response) {
     const { id } = req.params;
 
+    const shopId = Number(id);
+
+    if (isNaN(shopId)) {
+      return res.status(400).json({ message: "Invalid shop id" });
+    }
+
     try {
-      const shop = await ShopModel.deleteById(Number(id));
+      const shop = await ShopModel.deleteById(shopId);
 
       if (!shop) {
         return res.status(404).json({ message: "Shop not found" });
