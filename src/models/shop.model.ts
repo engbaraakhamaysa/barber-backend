@@ -17,6 +17,7 @@ export class ShopModel {
   /////////////////////////////////////////////////////////
   //                  CREATE NEW SHOP                    //
   /////////////////////////////////////////////////////////
+
   static async create(name: string, location: string): Promise<Shop> {
     const sql = `
       INSERT INTO shops (name, location)
@@ -36,6 +37,7 @@ export class ShopModel {
   /////////////////////////////////////////////////////////
   //                  GET All Shops                      //
   /////////////////////////////////////////////////////////
+
   static async getAll(): Promise<Shop[]> {
     const sql = `
       SELECT * FROM shops
@@ -54,6 +56,7 @@ export class ShopModel {
   /////////////////////////////////////////////////////////
   //                  GET Shop By ID                     //
   /////////////////////////////////////////////////////////
+
   static async getById(id: number): Promise<Shop | undefined> {
     const sql = `
       SELECT * FROM shops
@@ -72,6 +75,7 @@ export class ShopModel {
   /////////////////////////////////////////////////////////
   //                  DELETE Shop By ID                  //
   /////////////////////////////////////////////////////////
+
   static async deleteById(id: number): Promise<Shop | undefined> {
     const sql = `
       DELETE FROM shops

@@ -8,6 +8,7 @@ router.get("/", ShopController.getAll);
 router.get("/:id", ShopController.getById);
 
 router.post("/", ShopController.create);
-router.delete("/:id", ShopController.deleteByID);
+
+router.delete("/:id", ShopController.deleteById);
 
 export default router;
