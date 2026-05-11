@@ -114,4 +114,36 @@ export class BarberController {
       });
     }
   }
+
+  /////////////////////////////////////////////////////////
+  //                    LOGIN BARBER                     //
+  /////////////////////////////////////////////////////////
+
+  static async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    try {
+      const barber = await BarberModel.login(email, password);
+
+      if (!barber) {
+        return res.status(401).json({
+          message: "Invalid email or password",
+        });
+      }
+
+      return res.status(200).json(barber);
+    } catch (error) {
+      console.error("Controller login error", error);
+
+      return res.status(500).json({
+        message: "Login failed",
+      });
+    }
+  }
 }

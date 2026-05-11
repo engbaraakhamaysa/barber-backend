@@ -27,4 +27,6 @@ router.put("/", BarberController.update);
 
 router.delete("/:id", BarberController.deleteById);
 
+router.post("/login", BarberController.login);
+
 export default router;

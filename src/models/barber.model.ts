@@ -100,4 +100,29 @@ export class BarberModel {
       throw error;
     }
   }
+
+  /////////////////////////////////////////////////////////
+  //                    LOGIN BARBER                     //
+  /////////////////////////////////////////////////////////
+
+  static async login(email: string, password: string): Promise<Barber | null> {
+    const sql = `
+    SELECT * FROM barbers
+    WHERE email = $1 AND password = $2
+    LIMIT 1
+  `;
+
+    try {
+      const result = await pool.query(sql, [email, password]);
+
+      if (result.rows.length === 0) {
+        return null;
+      }
+
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error login barber", error);
+      throw error;
+    }
+  }
 }
