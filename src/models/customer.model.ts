@@ -5,7 +5,7 @@ export class CustomerModel {
   //                 CREATE CUSTOMER                     //
   /////////////////////////////////////////////////////////
 
-  static async create(barber_id: number, name: string, phone: string | null) {
+  static async create(barber_id: number, name: string, phone: string) {
     const sql = `
       INSERT INTO customers (barber_id, name, phone)
       VALUES ($1, $2, $3)
