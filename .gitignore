@@ -4,5 +4,11 @@ node_modules/
 # build files
 dist/
 
-# environment variables 
+# environment variables
 .env
+.env.*
+
+!.env.example
+
+# logs
+*.log

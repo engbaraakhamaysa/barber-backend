@@ -1,19 +1,19 @@
 {
   "dev": {
     "driver": "pg",
-    "host": "localhost",
-    "port": 5434,
-    "user": "postgres",
-    "password": "1234",
-    "database": "barber"
+    "host": "${DB_HOST}",
+    "port": "${DB_PORT}",
+    "user": "${DB_USER}",
+    "password": "${DB_PASSWORD}",
+    "database": "${DB_NAME}"
   },
 
   "test": {
     "driver": "pg",
-    "host": "localhost",
-    "port": 5434,
-    "user": "postgres",
-    "password": "1234",
-    "database": "barber_test"
+    "host": "${TEST_DB_HOST}",
+    "port": "${TEST_DB_PORT}",
+    "user": "${TEST_DB_USER}",
+    "password": "${TEST_DB_PASSWORD}",
+    "database": "${TEST_DB_NAME}"
   }
 }

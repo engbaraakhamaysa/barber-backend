@@ -5,25 +5,32 @@ import {
   validateUpdateBarber,
   validateLoginBarber,
 } from "./barber.validation";
+import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
 // CREATE BARBER
+// Public for now
 router.post("/", validateCreateBarber, BarberController.create);
 
 // GET BARBERS BY SHOP ID
+// Public
 router.get("/shop/:id", BarberController.getByShopId);
 
 // GET BARBER BY ID
-router.get("/:id", BarberController.getById);
+// Protected
+router.get("/:id", authMiddleware, BarberController.getById);
 
 // UPDATE BARBER
-router.put("/", validateUpdateBarber, BarberController.update);
+// Protected
+router.put("/", authMiddleware, validateUpdateBarber, BarberController.update);
 
 // DELETE BARBER
-router.delete("/:id", BarberController.deleteById);
+// Protected
+router.delete("/:id", authMiddleware, BarberController.deleteById);
 
 // LOGIN BARBER
+// Public
 router.post("/login", validateLoginBarber, BarberController.login);
 
 export default router;
