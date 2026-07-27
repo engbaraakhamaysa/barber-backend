@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { BarberService } from "./barber.service";
 
 export class BarberController {
+  // ==========================================================
   // CREATE BARBER
+  // ==========================================================
+
   static async create(req: Request, res: Response) {
     const { shop_id, name, email, password } = req.body;
 
@@ -24,7 +27,10 @@ export class BarberController {
     }
   }
 
+  // ==========================================================
   // GET BARBERS BY SHOP ID
+  // ==========================================================
+
   static async getByShopId(req: Request, res: Response) {
     const shopId = Number(req.params.id);
 
@@ -47,7 +53,10 @@ export class BarberController {
     }
   }
 
+  // ==========================================================
   // GET BARBER BY ID
+  // ==========================================================
+
   static async getById(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 
@@ -76,7 +85,10 @@ export class BarberController {
     }
   }
 
+  // ==========================================================
   // UPDATE BARBER
+  // ==========================================================
+
   static async update(req: Request, res: Response) {
     const { id, name, email, password, is_active } = req.body;
 
@@ -104,7 +116,10 @@ export class BarberController {
     }
   }
 
+  // ==========================================================
   // DELETE BARBER
+  // ==========================================================
+
   static async deleteById(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 
@@ -136,23 +151,32 @@ export class BarberController {
     }
   }
 
+  // ==========================================================
   // LOGIN BARBER
+  // ==========================================================
+
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
     try {
-      const barber = await BarberService.login({
+      const result = await BarberService.login({
         email,
         password,
       });
 
-      if (!barber) {
+      if (!result) {
         return res.status(401).json({
           message: "Invalid email or password",
         });
       }
 
-      return res.status(200).json(barber);
+      return res.status(200).json(result);
     } catch (error) {
       console.error("Controller error (login barber):", error);
 

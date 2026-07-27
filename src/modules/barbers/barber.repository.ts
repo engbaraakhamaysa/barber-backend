@@ -2,7 +2,10 @@ import pool from "../../config/db";
 import { Barber } from "./barber.types";
 
 export class BarberRepository {
+  // ==========================================================
   // CREATE BARBER
+  // ==========================================================
+
   static async create(
     shopId: number,
     name: string,
@@ -25,7 +28,10 @@ export class BarberRepository {
     return result.rows[0];
   }
 
+  // ==========================================================
   // GET BARBERS BY SHOP ID
+  // ==========================================================
+
   static async getByShopId(shopId: number): Promise<Barber[]> {
     const sql = `
       SELECT *
@@ -39,7 +45,10 @@ export class BarberRepository {
     return result.rows;
   }
 
+  // ==========================================================
   // GET BARBER BY ID
+  // ==========================================================
+
   static async getById(id: number): Promise<Barber | undefined> {
     const sql = `
       SELECT *
@@ -52,12 +61,15 @@ export class BarberRepository {
     return result.rows[0];
   }
 
+  // ==========================================================
   // UPDATE BARBER
+  // ==========================================================
+
   static async update(
     id: number,
     name: string,
     email: string,
-    password: string,
+    password: string | undefined,
     isActive: boolean,
   ): Promise<Barber | undefined> {
     const sql = `
@@ -65,18 +77,27 @@ export class BarberRepository {
       SET
         name = $1,
         email = $2,
-        password = $3,
+        password = COALESCE($3, password),
         is_active = $4
       WHERE id = $5
       RETURNING *
     `;
 
-    const result = await pool.query(sql, [name, email, password, isActive, id]);
+    const result = await pool.query(sql, [
+      name,
+      email,
+      password ?? null,
+      isActive,
+      id,
+    ]);
 
     return result.rows[0];
   }
 
+  // ==========================================================
   // DELETE BARBER
+  // ==========================================================
+
   static async deleteById(id: number): Promise<Barber | undefined> {
     const sql = `
       DELETE FROM barbers
@@ -89,7 +110,10 @@ export class BarberRepository {
     return result.rows[0];
   }
 
+  // ==========================================================
   // GET BARBER BY EMAIL
+  // ==========================================================
+
   static async getByEmail(email: string): Promise<Barber | undefined> {
     const sql = `
       SELECT *
