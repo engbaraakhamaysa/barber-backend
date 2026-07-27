@@ -1,12 +1,14 @@
 import express from "express";
 import cors from "cors";
-import shopRoutes from "./routers/shop.routes";
-import barberRoutes from "./routers/barber.routes";
-import bookingSlotRoutes from "./routers/bookingSlot.routes";
 
-import customerRoutes from "./routers/customer.routes";
+import shopRoutes from "./modules/shop/shop.routes";
+import barberRoutes from "./modules/barbers/barber.routes";
+import customerRoutes from "./modules/customers/customer.routes";
+import bookingSlotRoutes from "./modules/booking-slots/booking-slot.routes";
+
 const app = express();
 
+// Middlewares
 app.use(
   cors({
     origin: "*",
@@ -15,17 +17,17 @@ app.use(
 
 app.use(express.json());
 
-// routes
-
+// Health Check
 app.get("/", (req, res) => {
-  res.send("API is Working");
+  res.status(200).json({
+    message: "Barber API is working",
+  });
 });
 
-app.use("/shops", shopRoutes);
-app.use("/barbers", barberRoutes);
-app.use("/customers", customerRoutes);
-app.use("/api", bookingSlotRoutes);
+// Routes
+app.use("/api/shops", shopRoutes);
+app.use("/api/barbers", barberRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/booking-slots", bookingSlotRoutes);
 
-app.listen(3000, "0.0.0.0", () => {
-  console.log("Server running on port 3000");
-});
+export default app;
