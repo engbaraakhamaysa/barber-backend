@@ -11,7 +11,6 @@ export class AuthController {
         name,
         email,
         password,
-        role,
       });
 
       return res.status(201).json({

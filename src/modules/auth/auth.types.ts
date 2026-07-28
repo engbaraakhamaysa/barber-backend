@@ -1,4 +1,4 @@
-export type UserRole = "customer" | "barber" | "admin";
+export type UserRole = "user" | "barber" | "admin";
 
 export interface AuthUser {
   id: number;
@@ -11,7 +11,6 @@ export interface RegisterInput {
   name: string;
   email: string;
   password: string;
-  role: UserRole;
 }
 
 export interface LoginInput {
@@ -24,7 +23,9 @@ export interface AuthResponse {
   accessToken: string;
 }
 
-export interface JwtPayload {
-  id: number;
+export interface CreateUserInput {
+  name: string;
+  email: string;
+  password: string;
   role: UserRole;
 }

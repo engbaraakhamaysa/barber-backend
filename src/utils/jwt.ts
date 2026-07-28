@@ -7,7 +7,7 @@ const JWT_EXPIRES_IN = "1d";
 export interface JwtPayload {
   id: number;
   email: string;
-  shop_id: number;
+  role: "user" | "barber" | "admin";
 }
 
 export const generateToken = (payload: JwtPayload): string => {
