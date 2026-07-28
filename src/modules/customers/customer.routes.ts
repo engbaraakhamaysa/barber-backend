@@ -5,21 +5,50 @@ import {
   validateUpdateCustomer,
 } from "./customer.validation";
 
+import { authMiddleware } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize";
+
 const router = Router();
 
 // CREATE CUSTOMER
+// Public
 router.post("/", validateCreateCustomer, CustomerController.create);
 
 // GET ALL CUSTOMERS
-router.get("/", CustomerController.getAll);
+// Barber + Admin
+router.get(
+  "/",
+  authMiddleware,
+  authorize("barber", "admin"),
+  CustomerController.getAll,
+);
 
 // GET CUSTOMER BY ID
-router.get("/:id", CustomerController.getById);
+// Barber + Admin
+router.get(
+  "/:id",
+  authMiddleware,
+  authorize("barber", "admin"),
+  CustomerController.getById,
+);
 
 // UPDATE CUSTOMER
-router.put("/:id", validateUpdateCustomer, CustomerController.update);
+// Barber + Admin
+router.put(
+  "/:id",
+  authMiddleware,
+  authorize("barber", "admin"),
+  validateUpdateCustomer,
+  CustomerController.update,
+);
 
 // DELETE CUSTOMER
-router.delete("/:id", CustomerController.deleteById);
+// Barber + Admin
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorize("barber", "admin"),
+  CustomerController.deleteById,
+);
 
 export default router;

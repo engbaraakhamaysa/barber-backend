@@ -1,5 +1,5 @@
 import pool from "../../config/db";
-import { AuthUser, RegisterInput } from "./auth.types";
+import { AuthUser, RegisterInput, CreateUserInput } from "./auth.types";
 
 interface UserRecord extends AuthUser {
   password: string;
@@ -49,7 +49,7 @@ export class AuthRepository {
 
   // CREATE USER
   static async create(
-    data: RegisterInput,
+    data: CreateUserInput,
     hashedPassword: string,
   ): Promise<AuthUser> {
     const sql = `
