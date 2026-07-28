@@ -1,14 +1,12 @@
 import { Pool } from "pg";
-import dotenv from "dotenv";
-
-dotenv.config();
+import env from "./env";
 
 const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: process.env.DB_HOST,
-  database: process.env.POSTGRES_DB,
-  password: process.env.POSTGRES_PASSWORD,
-  port: Number(process.env.DB_PORT),
+  host: env.db.host,
+  port: env.db.port,
+  user: env.db.user,
+  password: env.db.password,
+  database: env.db.name,
 });
 
 export default pool;

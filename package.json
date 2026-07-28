@@ -4,7 +4,7 @@
   "description": "This is a backend project for Barber Shop system.",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/app.ts",
+    "dev": "ts-node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
