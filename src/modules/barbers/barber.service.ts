@@ -1,112 +1,101 @@
+import pool from "../../config/db";
+import { UserRepository } from "../users/user.repository";
 import { BarberRepository } from "./barber.repository";
 import {
-  Barber,
+  BarberWithUser,
   CreateBarberInput,
   UpdateBarberInput,
-  LoginBarberInput,
 } from "./barber.types";
-import { hashPassword, comparePassword } from "../../utils/password";
-import { generateToken } from "../../utils/jwt";
+import { hashPassword } from "../../utils/password";
 
 export class BarberService {
-  // ==========================================================
   // CREATE BARBER
-  // ==========================================================
+  static async create(data: CreateBarberInput): Promise<BarberWithUser> {
+    const client = await pool.connect();
 
-  static async create(data: CreateBarberInput): Promise<Barber> {
-    const hashedPassword = await hashPassword(data.password);
+    try {
+      await client.query("BEGIN");
 
-    return BarberRepository.create(
-      data.shop_id,
-      data.name,
-      data.email,
-      hashedPassword,
-    );
+      // 1. Hash password
+      const hashedPassword = await hashPassword(data.password);
+
+      // 2. Create user with barber role
+      const userResult = await client.query(
+        `
+          INSERT INTO users (
+            name,
+            email,
+            password,
+            role
+          )
+          VALUES ($1, $2, $3, 'barber')
+          RETURNING id
+        `,
+        [data.name, data.email, hashedPassword],
+      );
+
+      const userId = userResult.rows[0].id;
+
+      // 3. Create barber linked to user and shop
+      const barberResult = await client.query(
+        `
+          INSERT INTO barbers (
+            user_id,
+            shop_id
+          )
+          VALUES ($1, $2)
+          RETURNING *
+        `,
+        [userId, data.shop_id],
+      );
+
+      await client.query("COMMIT");
+
+      // 4. Get barber with user information
+      const barber = await BarberRepository.getById(barberResult.rows[0].id);
+
+      if (!barber) {
+        throw new Error("Barber was created but could not be retrieved");
+      }
+
+      return barber;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
-  // ==========================================================
-  // GET BARBERS BY SHOP ID
-  // ==========================================================
-
-  static async getByShopId(shopId: number): Promise<Barber[]> {
-    return BarberRepository.getByShopId(shopId);
-  }
-
-  // ==========================================================
   // GET BARBER BY ID
-  // ==========================================================
-
-  static async getById(id: number): Promise<Barber | undefined> {
+  static async getById(id: number): Promise<BarberWithUser | undefined> {
     return BarberRepository.getById(id);
   }
 
-  // ==========================================================
-  // UPDATE BARBER
-  // ==========================================================
+  // GET BARBERS BY SHOP ID
+  static async getByShopId(shopId: number): Promise<BarberWithUser[]> {
+    return BarberRepository.getByShopId(shopId);
+  }
 
+  // UPDATE BARBER
   static async update(
     id: number,
     data: UpdateBarberInput,
-  ): Promise<Barber | undefined> {
-    let hashedPassword = data.password;
-
-    if (data.password) {
-      hashedPassword = await hashPassword(data.password);
-    }
-
-    return BarberRepository.update(
-      id,
-      data.name,
-      data.email,
-      hashedPassword,
-      data.is_active,
-    );
-  }
-
-  // ==========================================================
-  // DELETE BARBER
-  // ==========================================================
-
-  static async deleteById(id: number): Promise<Barber | undefined> {
-    return BarberRepository.deleteById(id);
-  }
-
-  // ==========================================================
-  // LOGIN BARBER
-  // ==========================================================
-
-  static async login(data: LoginBarberInput) {
-    const barber = await BarberRepository.getByEmail(data.email);
-
-    if (!barber) {
-      return undefined;
-    }
-
-    const isPasswordValid = await comparePassword(
-      data.password,
-      barber.password,
-    );
-
-    if (!isPasswordValid) {
-      return undefined;
-    }
-
-    const token = generateToken({
-      id: barber.id,
-      email: barber.email,
-      shop_id: barber.shop_id,
-    });
-
-    return {
-      barber: {
-        id: barber.id,
-        shop_id: barber.shop_id,
-        name: barber.name,
-        email: barber.email,
-        is_active: barber.is_active,
-        created_at: barber.created_at,
-      },
-      token,
+  ): Promise<BarberWithUser | undefined> {
+    const updateData = {
+      ...data,
+      ...(data.password
+        ? {
+            password: await hashPassword(data.password),
+          }
+        : {}),
     };
+
+    return BarberRepository.update(id, updateData);
+  }
+
+  // DELETE BARBER
+  static async deleteById(id: number) {
+    return BarberRepository.deleteById(id);
   }
 }

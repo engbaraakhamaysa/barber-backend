@@ -39,8 +39,8 @@ app.get("/", (req, res) => {
 // ==========================================================
 app.use("/api/users", userRoutes);
 
-// app.use("/api/shops", shopRoutes);
-// app.use("/api/barbers", barberRoutes);
+app.use("/api/shops", shopRoutes);
+app.use("/api/barbers", barberRoutes);
 // app.use("/api/customers", customerRoutes);
 // app.use("/api/booking-slots", bookingSlotRoutes);
 

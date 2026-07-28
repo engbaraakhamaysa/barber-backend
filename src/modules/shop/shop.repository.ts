@@ -1,19 +1,24 @@
 import pool from "../../config/db";
-import { Shop } from "./shop.types";
+import { Shop, CreateShopInput, UpdateShopInput } from "./shop.types";
 
 export class ShopRepository {
-  static async create(name: string, location: string): Promise<Shop> {
+  // CREATE SHOP
+  static async create(data: CreateShopInput): Promise<Shop> {
     const sql = `
-      INSERT INTO shops (name, location)
+      INSERT INTO shops (
+        name,
+        location
+      )
       VALUES ($1, $2)
       RETURNING *
     `;
 
-    const result = await pool.query(sql, [name, location]);
+    const result = await pool.query(sql, [data.name, data.location]);
 
     return result.rows[0];
   }
 
+  // GET ALL SHOPS
   static async getAll(): Promise<Shop[]> {
     const sql = `
       SELECT *
@@ -26,6 +31,7 @@ export class ShopRepository {
     return result.rows;
   }
 
+  // GET SHOP BY ID
   static async getById(id: number): Promise<Shop | undefined> {
     const sql = `
       SELECT *
@@ -38,6 +44,33 @@ export class ShopRepository {
     return result.rows[0];
   }
 
+  // UPDATE SHOP
+  static async update(
+    id: number,
+    data: UpdateShopInput,
+  ): Promise<Shop | undefined> {
+    const sql = `
+      UPDATE shops
+      SET
+        name = COALESCE($1, name),
+        location = COALESCE($2, location),
+        is_active = COALESCE($3, is_active),
+        updated_at = NOW()
+      WHERE id = $4
+      RETURNING *
+    `;
+
+    const result = await pool.query(sql, [
+      data.name ?? null,
+      data.location ?? null,
+      data.is_active ?? null,
+      id,
+    ]);
+
+    return result.rows[0];
+  }
+
+  // DELETE SHOP
   static async deleteById(id: number): Promise<Shop | undefined> {
     const sql = `
       DELETE FROM shops

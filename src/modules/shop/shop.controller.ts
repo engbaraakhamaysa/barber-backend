@@ -7,11 +7,14 @@ export class ShopController {
     const { name, location } = req.body;
 
     try {
-      const shop = await ShopService.create(name, location);
+      const shop = await ShopService.create({
+        name,
+        location,
+      });
 
       return res.status(201).json(shop);
     } catch (error) {
-      console.error("Controller error (create):", error);
+      console.error("Controller error (create shop):", error);
 
       return res.status(500).json({
         message: "Failed to create shop",
@@ -26,7 +29,7 @@ export class ShopController {
 
       return res.status(200).json(shops);
     } catch (error) {
-      console.error("Controller error (getAll):", error);
+      console.error("Controller error (get shops):", error);
 
       return res.status(500).json({
         message: "Failed to get shops",
@@ -55,7 +58,7 @@ export class ShopController {
 
       return res.status(200).json(shop);
     } catch (error) {
-      console.error("Controller error (getById):", error);
+      console.error("Controller error (get shop):", error);
 
       return res.status(500).json({
         message: "Failed to get shop",
@@ -63,7 +66,42 @@ export class ShopController {
     }
   }
 
-  // DELETE SHOP BY ID
+  // UPDATE SHOP
+  static async update(req: Request, res: Response) {
+    const shopId = Number(req.params.id);
+
+    if (isNaN(shopId)) {
+      return res.status(400).json({
+        message: "Invalid shop id",
+      });
+    }
+
+    const { name, location, is_active } = req.body;
+
+    try {
+      const shop = await ShopService.update(shopId, {
+        name,
+        location,
+        is_active,
+      });
+
+      if (!shop) {
+        return res.status(404).json({
+          message: "Shop not found",
+        });
+      }
+
+      return res.status(200).json(shop);
+    } catch (error) {
+      console.error("Controller error (update shop):", error);
+
+      return res.status(500).json({
+        message: "Failed to update shop",
+      });
+    }
+  }
+
+  // DELETE SHOP
   static async deleteById(req: Request, res: Response) {
     const shopId = Number(req.params.id);
 
@@ -87,7 +125,7 @@ export class ShopController {
         shop,
       });
     } catch (error) {
-      console.error("Controller error (deleteById):", error);
+      console.error("Controller error (delete shop):", error);
 
       return res.status(500).json({
         message: "Failed to delete shop",

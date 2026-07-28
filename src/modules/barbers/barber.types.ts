@@ -1,20 +1,18 @@
+import { UserRole } from "../users/user.types";
+
 export interface Barber {
   id: number;
+  user_id: number;
   shop_id: number;
-  name: string;
-  email: string;
-  password: string;
   is_active: boolean;
   created_at: Date;
+  updated_at: Date;
 }
 
-export interface BarberResponse {
-  id: number;
-  shop_id: number;
+export interface BarberWithUser extends Barber {
   name: string;
   email: string;
-  is_active: boolean;
-  created_at: Date;
+  role: UserRole;
 }
 
 export interface CreateBarberInput {
@@ -24,15 +22,9 @@ export interface CreateBarberInput {
   password: string;
 }
 
-//???
 export interface UpdateBarberInput {
-  name: string;
-  email: string;
-  password: string;
-  is_active: boolean;
-}
-
-export interface LoginBarberInput {
-  email: string;
-  password: string;
+  name?: string;
+  email?: string;
+  password?: string;
+  is_active?: boolean;
 }
