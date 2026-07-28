@@ -5,35 +5,42 @@ export function validateCreateCustomer(
   res: Response,
   next: NextFunction,
 ) {
-  const { barber_id, name, phone } = req.body;
+  const { name, phone } = req.body;
 
-  if (barber_id === undefined || typeof barber_id !== "number") {
-    return res.status(400).json({
-      message: "Valid barber_id is required",
-    });
-  }
-
-  if (!name || typeof name !== "string") {
-    return res.status(400).json({
-      message: "Customer name is required",
-    });
-  }
-
-  if (!phone || typeof phone !== "string") {
-    return res.status(400).json({
-      message: "Customer phone is required",
-    });
-  }
-
-  if (name.trim().length < 2) {
+  if (!name || typeof name !== "string" || name.trim().length < 2) {
     return res.status(400).json({
       message: "Customer name must be at least 2 characters",
     });
   }
 
-  if (phone.trim().length < 7) {
+  if (phone !== undefined && phone !== null && typeof phone !== "string") {
     return res.status(400).json({
-      message: "Customer phone must be at least 7 characters",
+      message: "Phone must be a string",
+    });
+  }
+
+  next();
+}
+
+export function validateUpdateCustomer(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { name, phone } = req.body;
+
+  if (
+    name !== undefined &&
+    (typeof name !== "string" || name.trim().length < 2)
+  ) {
+    return res.status(400).json({
+      message: "Customer name must be at least 2 characters",
+    });
+  }
+
+  if (phone !== undefined && phone !== null && typeof phone !== "string") {
+    return res.status(400).json({
+      message: "Phone must be a string",
     });
   }
 

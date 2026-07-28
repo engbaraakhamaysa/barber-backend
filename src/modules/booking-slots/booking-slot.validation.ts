@@ -1,67 +1,97 @@
 import { Request, Response, NextFunction } from "express";
 
-// CREATE BOOKING SLOTS
-export function validateCreateBookingSlots(
+export function validateCreateBookingSlot(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  const { barber_id, slots } = req.body;
+  const { shop_id, barber_id, start_time, end_time } = req.body;
 
-  if (barber_id === undefined || typeof barber_id !== "number") {
+  if (
+    shop_id === undefined ||
+    typeof shop_id !== "number" ||
+    !Number.isInteger(shop_id) ||
+    shop_id <= 0
+  ) {
+    return res.status(400).json({
+      message: "Valid shop_id is required",
+    });
+  }
+
+  if (
+    barber_id === undefined ||
+    typeof barber_id !== "number" ||
+    !Number.isInteger(barber_id) ||
+    barber_id <= 0
+  ) {
     return res.status(400).json({
       message: "Valid barber_id is required",
     });
   }
 
-  if (!Array.isArray(slots) || slots.length === 0) {
+  if (!start_time) {
     return res.status(400).json({
-      message: "At least one slot is required",
+      message: "start_time is required",
     });
   }
 
-  const isValidSlots = slots.every(
-    (slot) => typeof slot === "string" && /^\d{2}:\d{2}$/.test(slot),
-  );
-
-  if (!isValidSlots) {
+  if (!end_time) {
     return res.status(400).json({
-      message: "Each slot must have a valid time format HH:mm",
+      message: "end_time is required",
+    });
+  }
+
+  const startDate = new Date(start_time);
+  const endDate = new Date(end_time);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return res.status(400).json({
+      message: "Invalid date format",
+    });
+  }
+
+  if (endDate <= startDate) {
+    return res.status(400).json({
+      message: "end_time must be after start_time",
     });
   }
 
   next();
 }
 
-// BOOK SLOT
-export function validateBookSlot(
+export function validateUpdateBookingSlot(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  const { slot_id, customer_name, customer_phone } = req.body;
+  const { start_time, end_time, is_available } = req.body;
 
-  if (slot_id === undefined || typeof slot_id !== "number") {
+  if (start_time !== undefined && isNaN(new Date(start_time).getTime())) {
     return res.status(400).json({
-      message: "Valid slot_id is required",
+      message: "Invalid start_time",
     });
   }
 
-  if (!customer_name || typeof customer_name !== "string") {
+  if (end_time !== undefined && isNaN(new Date(end_time).getTime())) {
     return res.status(400).json({
-      message: "Customer name is required",
+      message: "Invalid end_time",
     });
   }
 
-  if (customer_name.trim().length < 2) {
-    return res.status(400).json({
-      message: "Customer name must be at least 2 characters",
-    });
+  if (start_time !== undefined && end_time !== undefined) {
+    const startDate = new Date(start_time);
+    const endDate = new Date(end_time);
+
+    if (endDate <= startDate) {
+      return res.status(400).json({
+        message: "end_time must be after start_time",
+      });
+    }
   }
 
-  if (customer_phone !== undefined && typeof customer_phone !== "string") {
+  if (is_available !== undefined && typeof is_available !== "boolean") {
     return res.status(400).json({
-      message: "Customer phone must be a string",
+      message: "is_available must be a boolean",
     });
   }
 

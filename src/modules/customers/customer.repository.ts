@@ -1,16 +1,16 @@
 import pool from "../../config/db";
-import { Customer } from "./customer.types";
+import {
+  Customer,
+  CreateCustomerInput,
+  UpdateCustomerInput,
+} from "./customer.types";
 
 export class CustomerRepository {
   // CREATE CUSTOMER
-  static async create(
-    barberId: number,
-    name: string,
-    phone: string,
-  ): Promise<Customer> {
+  static async create(data: CreateCustomerInput): Promise<Customer> {
     const sql = `
       INSERT INTO customers (
-        barber_id,
+        user_id,
         name,
         phone
       )
@@ -18,21 +18,24 @@ export class CustomerRepository {
       RETURNING *
     `;
 
-    const result = await pool.query(sql, [barberId, name, phone]);
+    const result = await pool.query(sql, [
+      data.user_id ?? null,
+      data.name,
+      data.phone ?? null,
+    ]);
 
     return result.rows[0];
   }
 
-  // GET CUSTOMERS BY BARBER ID
-  static async getByBarberId(barberId: number): Promise<Customer[]> {
+  // GET ALL CUSTOMERS
+  static async getAll(): Promise<Customer[]> {
     const sql = `
       SELECT *
       FROM customers
-      WHERE barber_id = $1
-      ORDER BY created_at ASC
+      ORDER BY id DESC
     `;
 
-    const result = await pool.query(sql, [barberId]);
+    const result = await pool.query(sql);
 
     return result.rows;
   }
@@ -46,6 +49,30 @@ export class CustomerRepository {
     `;
 
     const result = await pool.query(sql, [id]);
+
+    return result.rows[0];
+  }
+
+  // UPDATE CUSTOMER
+  static async update(
+    id: number,
+    data: UpdateCustomerInput,
+  ): Promise<Customer | undefined> {
+    const sql = `
+      UPDATE customers
+      SET
+        name = COALESCE($1, name),
+        phone = COALESCE($2, phone),
+        updated_at = NOW()
+      WHERE id = $3
+      RETURNING *
+    `;
+
+    const result = await pool.query(sql, [
+      data.name ?? null,
+      data.phone ?? null,
+      id,
+    ]);
 
     return result.rows[0];
   }

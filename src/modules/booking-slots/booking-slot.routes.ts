@@ -1,25 +1,37 @@
 import { Router } from "express";
 import { BookingSlotController } from "./booking-slot.controller";
 import {
-  validateCreateBookingSlots,
-  validateBookSlot,
+  validateCreateBookingSlot,
+  validateUpdateBookingSlot,
 } from "./booking-slot.validation";
 
 const router = Router();
 
-// CREATE BOOKING SLOTS
-router.post("/", validateCreateBookingSlots, BookingSlotController.createSlots);
+// CREATE BOOKING SLOT
+router.post("/", validateCreateBookingSlot, BookingSlotController.create);
 
-// GET ALL SLOTS BY BARBER ID
-router.get("/barber/:barber_id", BookingSlotController.getAllByBarber);
+// GET ALL BOOKING SLOTS
+router.get("/", BookingSlotController.getAll);
 
-// GET SLOT BY ID
+// GET AVAILABLE SLOTS BY SHOP
+router.get(
+  "/shop/:shopId/available",
+  BookingSlotController.getAvailableByShopId,
+);
+
+// GET AVAILABLE SLOTS BY BARBER
+router.get(
+  "/barber/:barberId/available",
+  BookingSlotController.getAvailableByBarberId,
+);
+
+// GET BOOKING SLOT BY ID
 router.get("/:id", BookingSlotController.getById);
 
-// DELETE SLOT
-router.delete("/:id", BookingSlotController.deleteById);
+// UPDATE BOOKING SLOT
+router.put("/:id", validateUpdateBookingSlot, BookingSlotController.update);
 
-// BOOK SLOT
-router.post("/book", validateBookSlot, BookingSlotController.bookSlot);
+// DELETE BOOKING SLOT
+router.delete("/:id", BookingSlotController.deleteById);
 
 export default router;
