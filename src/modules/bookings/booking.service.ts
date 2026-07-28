@@ -149,7 +149,69 @@ export class BookingService {
     id: number,
     data: UpdateBookingInput,
   ): Promise<Booking | undefined> {
-    return BookingRepository.update(id, data);
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      // 1. Get the booking
+      const bookingResult = await client.query(
+        `
+        SELECT
+          id,
+          booking_slot_id,
+          status
+        FROM bookings
+        WHERE id = $1
+        FOR UPDATE
+      `,
+        [id],
+      );
+
+      if (bookingResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return undefined;
+      }
+
+      const booking = bookingResult.rows[0];
+
+      // 2. Update booking status
+      const updatedBookingResult = await client.query(
+        `
+          UPDATE bookings
+          SET
+            status = COALESCE($1, status),
+            updated_at = NOW()
+          WHERE id = $2
+          RETURNING *
+        `,
+        [data.status ?? null, id],
+      );
+
+      // 3. If booking is cancelled,
+      // make the booking slot available again
+      if (data.status === "cancelled" && booking.status !== "cancelled") {
+        await client.query(
+          `
+          UPDATE booking_slots
+          SET
+            is_available = true,
+            updated_at = NOW()
+          WHERE id = $1
+        `,
+          [booking.booking_slot_id],
+        );
+      }
+
+      await client.query("COMMIT");
+
+      return updatedBookingResult.rows[0];
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   // DELETE BOOKING

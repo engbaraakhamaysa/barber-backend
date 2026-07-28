@@ -7,6 +7,8 @@ import customerRoutes from "./modules/customers/customer.routes";
 import bookingSlotRoutes from "./modules/booking-slots/booking-slot.routes";
 import bookingRoutes from "./modules/bookings/booking.routes";
 import userRoutes from "./modules/users/user.routes";
+import queueRoutes from "./modules/queue/queue.routes";
+import customerBarberBlockRoutes from "./modules/customer-barber-blocks/customer-barber-block.routes";
 
 import { notFoundMiddleware } from "./middlewares/not-found.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -45,6 +47,8 @@ app.use("/api/barbers", barberRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/booking-slots", bookingSlotRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/queue", queueRoutes);
+app.use("/api/customer-barber-blocks", customerBarberBlockRoutes);
 
 // ==========================================================
 // Error Handling
