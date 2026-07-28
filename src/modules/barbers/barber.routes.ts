@@ -3,34 +3,23 @@ import { BarberController } from "./barber.controller";
 import {
   validateCreateBarber,
   validateUpdateBarber,
-  validateLoginBarber,
 } from "./barber.validation";
-import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
 // CREATE BARBER
-// Public for now
 router.post("/", validateCreateBarber, BarberController.create);
 
 // GET BARBERS BY SHOP ID
-// Public
-router.get("/shop/:id", BarberController.getByShopId);
+router.get("/shop/:shopId", BarberController.getByShopId);
 
 // GET BARBER BY ID
-// Protected
-router.get("/:id", authMiddleware, BarberController.getById);
+router.get("/:id", BarberController.getById);
 
 // UPDATE BARBER
-// Protected
-router.put("/", authMiddleware, validateUpdateBarber, BarberController.update);
+router.put("/:id", validateUpdateBarber, BarberController.update);
 
 // DELETE BARBER
-// Protected
-router.delete("/:id", authMiddleware, BarberController.deleteById);
-
-// LOGIN BARBER
-// Public
-router.post("/login", validateLoginBarber, BarberController.login);
+router.delete("/:id", BarberController.deleteById);
 
 export default router;

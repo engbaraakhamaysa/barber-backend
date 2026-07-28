@@ -2,10 +2,7 @@ import { Request, Response } from "express";
 import { BarberService } from "./barber.service";
 
 export class BarberController {
-  // ==========================================================
   // CREATE BARBER
-  // ==========================================================
-
   static async create(req: Request, res: Response) {
     const { shop_id, name, email, password } = req.body;
 
@@ -27,36 +24,7 @@ export class BarberController {
     }
   }
 
-  // ==========================================================
-  // GET BARBERS BY SHOP ID
-  // ==========================================================
-
-  static async getByShopId(req: Request, res: Response) {
-    const shopId = Number(req.params.id);
-
-    if (isNaN(shopId)) {
-      return res.status(400).json({
-        message: "Invalid shop id",
-      });
-    }
-
-    try {
-      const barbers = await BarberService.getByShopId(shopId);
-
-      return res.status(200).json(barbers);
-    } catch (error) {
-      console.error("Controller error (get barbers):", error);
-
-      return res.status(500).json({
-        message: "Failed to get barbers",
-      });
-    }
-  }
-
-  // ==========================================================
   // GET BARBER BY ID
-  // ==========================================================
-
   static async getById(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 
@@ -85,15 +53,43 @@ export class BarberController {
     }
   }
 
-  // ==========================================================
-  // UPDATE BARBER
-  // ==========================================================
+  // GET BARBERS BY SHOP ID
+  static async getByShopId(req: Request, res: Response) {
+    const shopId = Number(req.params.shopId);
 
-  static async update(req: Request, res: Response) {
-    const { id, name, email, password, is_active } = req.body;
+    if (isNaN(shopId)) {
+      return res.status(400).json({
+        message: "Invalid shop id",
+      });
+    }
 
     try {
-      const barber = await BarberService.update(id, {
+      const barbers = await BarberService.getByShopId(shopId);
+
+      return res.status(200).json(barbers);
+    } catch (error) {
+      console.error("Controller error (get barbers by shop):", error);
+
+      return res.status(500).json({
+        message: "Failed to get barbers",
+      });
+    }
+  }
+
+  // UPDATE BARBER
+  static async update(req: Request, res: Response) {
+    const barberId = Number(req.params.id);
+
+    if (isNaN(barberId)) {
+      return res.status(400).json({
+        message: "Invalid barber id",
+      });
+    }
+
+    const { name, email, password, is_active } = req.body;
+
+    try {
+      const barber = await BarberService.update(barberId, {
         name,
         email,
         password,
@@ -116,10 +112,7 @@ export class BarberController {
     }
   }
 
-  // ==========================================================
   // DELETE BARBER
-  // ==========================================================
-
   static async deleteById(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 
@@ -147,41 +140,6 @@ export class BarberController {
 
       return res.status(500).json({
         message: "Failed to delete barber",
-      });
-    }
-  }
-
-  // ==========================================================
-  // LOGIN BARBER
-  // ==========================================================
-
-  static async login(req: Request, res: Response) {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Email and password are required",
-      });
-    }
-
-    try {
-      const result = await BarberService.login({
-        email,
-        password,
-      });
-
-      if (!result) {
-        return res.status(401).json({
-          message: "Invalid email or password",
-        });
-      }
-
-      return res.status(200).json(result);
-    } catch (error) {
-      console.error("Controller error (login barber):", error);
-
-      return res.status(500).json({
-        message: "Login failed",
       });
     }
   }
