@@ -3,6 +3,7 @@ node_modules/
 
 # build files
 dist/
+dist-test/
 
 # environment variables
 .env
