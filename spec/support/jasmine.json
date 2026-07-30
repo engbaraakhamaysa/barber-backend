@@ -1,6 +1,7 @@
 {
-  "spec_dir": "dist-test/tests",
+  "spec_dir": "dist/tests",
   "spec_files": ["**/*.spec.js"],
+  "helpers": ["../../dist/spec/helpers/reporter.js"],
   "env": {
     "stopSpecOnExpectationFailure": false,
     "random": false

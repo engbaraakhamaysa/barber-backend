@@ -8,23 +8,59 @@ import {
 
 export class BarberRepository {
   // CREATE BARBER
-  // يتم إنشاء الـ User والـ Barber لاحقًا داخل Transaction في Service.
-  static async create(
-    userId: number,
-    data: CreateBarberInput,
-  ): Promise<Barber> {
-    const sql = `
-      INSERT INTO barbers (
-        user_id,
-        shop_id
-      )
-      VALUES ($1, $2)
-      RETURNING *
-    `;
+  // Create user + barber inside transaction
+  static async create(data: CreateBarberInput): Promise<BarberWithUser> {
+    const client = await pool.connect();
 
-    const result = await pool.query(sql, [userId, data.shop_id]);
+    try {
+      await client.query("BEGIN");
 
-    return result.rows[0];
+      // 1. Create user with barber role
+      const userResult = await client.query(
+        `
+          INSERT INTO users (
+            name,
+            email,
+            password,
+            role
+          )
+          VALUES ($1, $2, $3, 'barber')
+          RETURNING id
+        `,
+        [data.name, data.email, data.password],
+      );
+
+      const userId = userResult.rows[0].id;
+
+      // 2. Create barber linked to user and shop
+      const barberResult = await client.query(
+        `
+          INSERT INTO barbers (
+            user_id,
+            shop_id
+          )
+          VALUES ($1, $2)
+          RETURNING id
+        `,
+        [userId, data.shop_id],
+      );
+
+      await client.query("COMMIT");
+
+      // 3. Return barber with user information
+      const barber = await this.getById(barberResult.rows[0].id);
+
+      if (!barber) {
+        throw new Error("Barber was created but could not be retrieved");
+      }
+
+      return barber;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   // GET BARBER BY ID
@@ -86,6 +122,7 @@ export class BarberRepository {
     try {
       await client.query("BEGIN");
 
+      // Get linked user id
       const barberResult = await client.query(
         `
           SELECT user_id
@@ -97,11 +134,13 @@ export class BarberRepository {
 
       if (barberResult.rows.length === 0) {
         await client.query("ROLLBACK");
+
         return undefined;
       }
 
       const userId = barberResult.rows[0].user_id;
 
+      // Update user information
       await client.query(
         `
           UPDATE users
@@ -115,6 +154,7 @@ export class BarberRepository {
         [data.name ?? null, data.email ?? null, data.password ?? null, userId],
       );
 
+      // Update barber information
       await client.query(
         `
           UPDATE barbers
@@ -128,29 +168,10 @@ export class BarberRepository {
 
       await client.query("COMMIT");
 
-      const result = await client.query(
-        `
-          SELECT
-            b.id,
-            b.user_id,
-            b.shop_id,
-            b.is_active,
-            b.created_at,
-            b.updated_at,
-            u.name,
-            u.email,
-            u.role
-          FROM barbers b
-          INNER JOIN users u
-            ON b.user_id = u.id
-          WHERE b.id = $1
-        `,
-        [id],
-      );
-
-      return result.rows[0];
+      return this.getById(id);
     } catch (error) {
       await client.query("ROLLBACK");
+
       throw error;
     } finally {
       client.release();

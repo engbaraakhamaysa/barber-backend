@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "ts-node src/server.ts",
     "build": "tsc",
-    "build:test": "tsc -p tsconfig.test.json",
-    "test": "npm run build:test && jasmine --config=spec/support/jasmine.json",
+    "test": "npm run build && jasmine",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
