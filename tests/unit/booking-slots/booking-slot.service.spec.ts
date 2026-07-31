@@ -4,11 +4,8 @@ import { BookingSlotRepository } from "../../../src/modules/booking-slots/bookin
 describe("BookingSlotService", () => {
   const mockBookingSlot = {
     id: 1,
-    shop_id: 10,
     barber_id: 5,
-    start_time: new Date("2026-07-30T10:00:00"),
-    end_time: new Date("2026-07-30T10:30:00"),
-    is_available: true,
+    slot_time: new Date("2026-07-30T10:00:00"),
     created_at: new Date(),
     updated_at: new Date(),
   };
@@ -18,10 +15,8 @@ describe("BookingSlotService", () => {
       spyOn(BookingSlotRepository, "create").and.resolveTo(mockBookingSlot);
 
       const result = await BookingSlotService.create({
-        shop_id: 10,
         barber_id: 5,
-        start_time: mockBookingSlot.start_time,
-        end_time: mockBookingSlot.end_time,
+        slot_time: mockBookingSlot.slot_time,
       });
 
       expect(BookingSlotRepository.create).toHaveBeenCalled();
@@ -62,33 +57,15 @@ describe("BookingSlotService", () => {
     });
   });
 
-  describe("getAvailableByShopId", () => {
-    it("should return available slots by shop", async () => {
-      spyOn(BookingSlotRepository, "getAvailableByShopId").and.resolveTo([
+  describe("getByBarberId", () => {
+    it("should return slots by barber", async () => {
+      spyOn(BookingSlotRepository, "getByBarberId").and.resolveTo([
         mockBookingSlot,
       ]);
 
-      const result = await BookingSlotService.getAvailableByShopId(10);
+      const result = await BookingSlotService.getByBarberId(5);
 
-      expect(BookingSlotRepository.getAvailableByShopId).toHaveBeenCalledWith(
-        10,
-      );
-
-      expect(result.length).toBe(1);
-    });
-  });
-
-  describe("getAvailableByBarberId", () => {
-    it("should return available slots by barber", async () => {
-      spyOn(BookingSlotRepository, "getAvailableByBarberId").and.resolveTo([
-        mockBookingSlot,
-      ]);
-
-      const result = await BookingSlotService.getAvailableByBarberId(5);
-
-      expect(BookingSlotRepository.getAvailableByBarberId).toHaveBeenCalledWith(
-        5,
-      );
+      expect(BookingSlotRepository.getByBarberId).toHaveBeenCalledWith(5);
 
       expect(result.length).toBe(1);
     });
@@ -99,11 +76,11 @@ describe("BookingSlotService", () => {
       spyOn(BookingSlotRepository, "update").and.resolveTo(mockBookingSlot);
 
       const result = await BookingSlotService.update(1, {
-        is_available: false,
+        slot_time: new Date("2026-07-30T11:00:00"),
       });
 
       expect(BookingSlotRepository.update).toHaveBeenCalledWith(1, {
-        is_available: false,
+        slot_time: new Date("2026-07-30T11:00:00"),
       });
 
       expect(result?.id).toBe(1);
@@ -113,7 +90,7 @@ describe("BookingSlotService", () => {
       spyOn(BookingSlotRepository, "update").and.resolveTo(undefined);
 
       const result = await BookingSlotService.update(99, {
-        is_available: false,
+        slot_time: new Date(),
       });
 
       expect(result).toBeUndefined();

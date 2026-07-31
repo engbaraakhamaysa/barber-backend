@@ -1,4 +1,5 @@
 import pool from "../../config/db";
+
 import {
   Booking,
   BookingWithDetails,
@@ -7,71 +8,33 @@ import {
 } from "./booking.types";
 
 export class BookingRepository {
-  // CREATE BOOKING WITH TRANSACTION
+  // CREATE BOOKING
   static async create(data: CreateBookingInput): Promise<Booking> {
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
 
-      // 1. Check slot exists and lock it
+      // Check booking slot
       const slotResult = await client.query(
         `
-        SELECT
-          id,
-          shop_id,
-          barber_id,
-          is_available
+        SELECT id
         FROM booking_slots
-        WHERE id = $1
-        FOR UPDATE
+        WHERE id=$1
         `,
-        [data.booking_slot_id],
+        [data.slot_id],
       );
 
       if (slotResult.rows.length === 0) {
         throw new Error("BOOKING_SLOT_NOT_FOUND");
       }
 
-      const slot = slotResult.rows[0];
-
-      // 2. Check slot availability
-      if (!slot.is_available) {
-        throw new Error("BOOKING_SLOT_NOT_AVAILABLE");
-      }
-
-      // 3. Check shop match
-      if (slot.shop_id !== data.shop_id) {
-        throw new Error("BOOKING_SLOT_SHOP_MISMATCH");
-      }
-
-      // 4. Check barber match
-      if (slot.barber_id !== data.barber_id) {
-        throw new Error("BOOKING_SLOT_BARBER_MISMATCH");
-      }
-
-      // 5. Check barber
-      const barberResult = await client.query(
-        `
-        SELECT id
-        FROM barbers
-        WHERE id = $1
-          AND shop_id = $2
-          AND is_active = true
-        `,
-        [data.barber_id, data.shop_id],
-      );
-
-      if (barberResult.rows.length === 0) {
-        throw new Error("BARBER_NOT_FOUND_OR_INACTIVE");
-      }
-
-      // 6. Check customer
+      // Check customer
       const customerResult = await client.query(
         `
         SELECT id
         FROM customers
-        WHERE id = $1
+        WHERE id=$1
         `,
         [data.customer_id],
       );
@@ -80,32 +43,18 @@ export class BookingRepository {
         throw new Error("CUSTOMER_NOT_FOUND");
       }
 
-      // 7. Create booking
+      // Create booking
       const bookingResult = await client.query(
         `
-        INSERT INTO bookings (
+        INSERT INTO bookings(
           customer_id,
-          shop_id,
-          barber_id,
-          booking_slot_id,
+          slot_id,
           status
         )
-        VALUES ($1,$2,$3,$4,'confirmed')
+        VALUES($1,$2,'confirmed')
         RETURNING *
         `,
-        [data.customer_id, data.shop_id, data.barber_id, data.booking_slot_id],
-      );
-
-      // 8. Disable slot
-      await client.query(
-        `
-        UPDATE booking_slots
-        SET
-          is_available = false,
-          updated_at = NOW()
-        WHERE id = $1
-        `,
-        [data.booking_slot_id],
+        [data.customer_id, data.slot_id],
       );
 
       await client.query("COMMIT");
@@ -113,6 +62,7 @@ export class BookingRepository {
       return bookingResult.rows[0];
     } catch (error) {
       await client.query("ROLLBACK");
+
       throw error;
     } finally {
       client.release();
@@ -121,41 +71,50 @@ export class BookingRepository {
 
   // GET ALL BOOKINGS
   static async getAll(): Promise<BookingWithDetails[]> {
-    const sql = `
+    const result = await pool.query(
+      `
       SELECT
-        b.*,
+
+        b.id,
+        b.customer_id,
+        b.slot_id,
+        b.status,
+        b.created_at,
+        b.updated_at,
+
 
         c.name AS customer_name,
         c.phone AS customer_phone,
 
+
         u.name AS barber_name,
 
-        s.name AS shop_name,
 
-        bs.start_time,
-        bs.end_time
+        bs.slot_time
+
 
       FROM bookings b
 
+
       INNER JOIN customers c
-        ON b.customer_id = c.id
+      ON b.customer_id = c.id
 
-      INNER JOIN shops s
-        ON b.shop_id = s.id
-
-      INNER JOIN barbers br
-        ON b.barber_id = br.id
-
-      INNER JOIN users u
-        ON br.user_id = u.id
 
       INNER JOIN booking_slots bs
-        ON b.booking_slot_id = bs.id
+      ON b.slot_id = bs.id
 
-      ORDER BY bs.start_time ASC
-    `;
 
-    const result = await pool.query(sql);
+      INNER JOIN barbers br
+      ON bs.barber_id = br.id
+
+
+      INNER JOIN users u
+      ON br.user_id = u.id
+
+
+      ORDER BY bs.slot_time ASC
+      `,
+    );
 
     return result.rows;
   }
@@ -164,9 +123,46 @@ export class BookingRepository {
   static async getById(id: number): Promise<BookingWithDetails | undefined> {
     const result = await pool.query(
       `
-      SELECT *
-      FROM bookings
-      WHERE id = $1
+      SELECT
+
+        b.id,
+        b.customer_id,
+        b.slot_id,
+        b.status,
+        b.created_at,
+        b.updated_at,
+
+
+        c.name AS customer_name,
+        c.phone AS customer_phone,
+
+
+        u.name AS barber_name,
+
+
+        bs.slot_time
+
+
+      FROM bookings b
+
+
+      INNER JOIN customers c
+      ON b.customer_id = c.id
+
+
+      INNER JOIN booking_slots bs
+      ON b.slot_id = bs.id
+
+
+      INNER JOIN barbers br
+      ON bs.barber_id = br.id
+
+
+      INNER JOIN users u
+      ON br.user_id = u.id
+
+
+      WHERE b.id=$1
       `,
       [id],
     );
@@ -180,10 +176,31 @@ export class BookingRepository {
   ): Promise<BookingWithDetails[]> {
     const result = await pool.query(
       `
-      SELECT *
-      FROM bookings
-      WHERE customer_id = $1
-      ORDER BY created_at DESC
+      SELECT
+
+        b.id,
+        b.customer_id,
+        b.slot_id,
+        b.status,
+        b.created_at,
+        b.updated_at,
+
+
+        bs.barber_id,
+        bs.slot_time
+
+
+      FROM bookings b
+
+
+      INNER JOIN booking_slots bs
+      ON b.slot_id = bs.id
+
+
+      WHERE b.customer_id=$1
+
+
+      ORDER BY b.created_at DESC
       `,
       [customerId],
     );
@@ -195,10 +212,31 @@ export class BookingRepository {
   static async getByBarberId(barberId: number): Promise<BookingWithDetails[]> {
     const result = await pool.query(
       `
-      SELECT *
-      FROM bookings
-      WHERE barber_id = $1
-      ORDER BY created_at DESC
+      SELECT
+
+        b.id,
+        b.customer_id,
+        b.slot_id,
+        b.status,
+        b.created_at,
+        b.updated_at,
+
+
+        bs.barber_id,
+        bs.slot_time
+
+
+      FROM bookings b
+
+
+      INNER JOIN booking_slots bs
+      ON b.slot_id = bs.id
+
+
+      WHERE bs.barber_id=$1
+
+
+      ORDER BY b.created_at DESC
       `,
       [barberId],
     );
@@ -211,65 +249,23 @@ export class BookingRepository {
     id: number,
     data: UpdateBookingInput,
   ): Promise<Booking | undefined> {
-    const client = await pool.connect();
+    const result = await pool.query(
+      `
+      UPDATE bookings
 
-    try {
-      await client.query("BEGIN");
+      SET
+        status=COALESCE($1,status),
+        updated_at=NOW()
 
-      const bookingResult = await client.query(
-        `
-        SELECT
-          id,
-          booking_slot_id,
-          status
-        FROM bookings
-        WHERE id = $1
-        FOR UPDATE
-        `,
-        [id],
-      );
+      WHERE id=$2
 
-      if (bookingResult.rows.length === 0) {
-        await client.query("ROLLBACK");
-        return undefined;
-      }
 
-      const booking = bookingResult.rows[0];
+      RETURNING *
+      `,
+      [data.status ?? null, id],
+    );
 
-      const updatedResult = await client.query(
-        `
-        UPDATE bookings
-        SET
-          status = COALESCE($1,status),
-          updated_at = NOW()
-        WHERE id = $2
-        RETURNING *
-        `,
-        [data.status ?? null, id],
-      );
-
-      if (data.status === "cancelled" && booking.status !== "cancelled") {
-        await client.query(
-          `
-          UPDATE booking_slots
-          SET
-            is_available = true,
-            updated_at = NOW()
-          WHERE id = $1
-          `,
-          [booking.booking_slot_id],
-        );
-      }
-
-      await client.query("COMMIT");
-
-      return updatedResult.rows[0];
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+    return result.rows[0];
   }
 
   // DELETE BOOKING
@@ -277,7 +273,10 @@ export class BookingRepository {
     const result = await pool.query(
       `
       DELETE FROM bookings
-      WHERE id = $1
+
+      WHERE id=$1
+
+
       RETURNING *
       `,
       [id],

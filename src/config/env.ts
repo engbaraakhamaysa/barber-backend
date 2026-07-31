@@ -12,6 +12,14 @@ const env = {
     password: process.env.DB_PASSWORD || "",
     name: process.env.DB_NAME || "",
   },
+
+  testDb: {
+    host: process.env.TEST_DB_HOST || "localhost",
+    port: Number(process.env.TEST_DB_PORT) || 5433,
+    user: process.env.TEST_DB_USER || "",
+    password: process.env.TEST_DB_PASSWORD || "",
+    name: process.env.TEST_DB_NAME || "",
+  },
 };
 
 export default env;

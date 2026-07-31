@@ -8,9 +8,7 @@ export type BookingStatus =
 export interface Booking {
   id: number;
   customer_id: number;
-  shop_id: number;
-  barber_id: number;
-  booking_slot_id: number;
+  slot_id: number;
   status: BookingStatus;
   created_at: Date;
   updated_at: Date;
@@ -18,9 +16,7 @@ export interface Booking {
 
 export interface CreateBookingInput {
   customer_id: number;
-  shop_id: number;
-  barber_id: number;
-  booking_slot_id: number;
+  slot_id: number;
 }
 
 export interface UpdateBookingInput {
@@ -30,8 +26,10 @@ export interface UpdateBookingInput {
 export interface BookingWithDetails extends Booking {
   customer_name: string;
   customer_phone: string | null;
+
   barber_name: string;
   shop_name: string;
+
   start_time: Date;
   end_time: Date;
 }

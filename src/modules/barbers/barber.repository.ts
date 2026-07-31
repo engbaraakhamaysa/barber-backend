@@ -179,15 +179,57 @@ export class BarberRepository {
   }
 
   // DELETE BARBER
+  // DELETE BARBER
   static async deleteById(id: number): Promise<Barber | undefined> {
-    const sql = `
-      DELETE FROM barbers
-      WHERE id = $1
-      RETURNING *
-    `;
+    const client = await pool.connect();
 
-    const result = await pool.query(sql, [id]);
+    try {
+      await client.query("BEGIN");
 
-    return result.rows[0];
+      // Get linked user id
+      const barberResult = await client.query(
+        `
+        SELECT user_id
+        FROM barbers
+        WHERE id = $1
+      `,
+        [id],
+      );
+
+      if (barberResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return undefined;
+      }
+
+      const userId = barberResult.rows[0].user_id;
+
+      // Delete barber
+      const deletedBarber = await client.query(
+        `
+        DELETE FROM barbers
+        WHERE id = $1
+        RETURNING *
+      `,
+        [id],
+      );
+
+      // Delete linked user
+      await client.query(
+        `
+        DELETE FROM users
+        WHERE id = $1
+      `,
+        [userId],
+      );
+
+      await client.query("COMMIT");
+
+      return deletedBarber.rows[0];
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 }
