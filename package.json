@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "ts-node src/server.ts",
     "build": "tsc",
-    "test": "npm run build && jasmine",
+    "test": "NODE_ENV=test npm run build && NODE_ENV=test jasmine",
+    "test:integration": "npm run build && NODE_ENV=test jasmine \"dist/tests/integration/**/*.spec.js\"",
+    "test:unit": "npm run build && NODE_ENV=test jasmine \"dist/tests/unit/**/*.spec.js\"",
     "typecheck": "tsc --noEmit"
   },
   "repository": {

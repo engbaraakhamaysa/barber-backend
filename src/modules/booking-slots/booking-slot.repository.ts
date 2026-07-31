@@ -6,124 +6,94 @@ import {
 } from "./booking-slot.types";
 
 export class BookingSlotRepository {
-  // CREATE BOOKING SLOT
+  // CREATE
   static async create(data: CreateBookingSlotInput): Promise<BookingSlot> {
     const sql = `
       INSERT INTO booking_slots (
-        shop_id,
         barber_id,
-        start_time,
-        end_time
+        slot_time
       )
-      VALUES ($1, $2, $3, $4)
+      VALUES ($1,$2)
       RETURNING *
     `;
 
-    const result = await pool.query(sql, [
-      data.shop_id,
-      data.barber_id,
-      data.start_time,
-      data.end_time,
-    ]);
+    const result = await pool.query(sql, [data.barber_id, data.slot_time]);
 
     return result.rows[0];
   }
 
-  // GET ALL BOOKING SLOTS
+  // GET ALL
   static async getAll(): Promise<BookingSlot[]> {
-    const sql = `
+    const result = await pool.query(`
       SELECT *
       FROM booking_slots
-      ORDER BY start_time ASC
-    `;
-
-    const result = await pool.query(sql);
+      ORDER BY slot_time ASC
+    `);
 
     return result.rows;
   }
 
-  // GET BOOKING SLOT BY ID
+  // GET BY ID
   static async getById(id: number): Promise<BookingSlot | undefined> {
-    const sql = `
+    const result = await pool.query(
+      `
       SELECT *
       FROM booking_slots
-      WHERE id = $1
-    `;
-
-    const result = await pool.query(sql, [id]);
+      WHERE id=$1
+      `,
+      [id],
+    );
 
     return result.rows[0];
   }
 
-  // GET AVAILABLE SLOTS BY SHOP
-  static async getAvailableByShopId(shopId: number): Promise<BookingSlot[]> {
-    const sql = `
+  // GET BY BARBER
+  static async getByBarberId(barberId: number): Promise<BookingSlot[]> {
+    const result = await pool.query(
+      `
       SELECT *
       FROM booking_slots
-      WHERE shop_id = $1
-        AND is_available = true
-        AND start_time > NOW()
-      ORDER BY start_time ASC
-    `;
-
-    const result = await pool.query(sql, [shopId]);
+      WHERE barber_id=$1
+      ORDER BY slot_time ASC
+      `,
+      [barberId],
+    );
 
     return result.rows;
   }
 
-  // GET AVAILABLE SLOTS BY BARBER
-  static async getAvailableByBarberId(
-    barberId: number,
-  ): Promise<BookingSlot[]> {
-    const sql = `
-      SELECT *
-      FROM booking_slots
-      WHERE barber_id = $1
-        AND is_available = true
-        AND start_time > NOW()
-      ORDER BY start_time ASC
-    `;
+  // UPDATE
 
-    const result = await pool.query(sql, [barberId]);
-
-    return result.rows;
-  }
-
-  // UPDATE BOOKING SLOT
   static async update(
     id: number,
     data: UpdateBookingSlotInput,
   ): Promise<BookingSlot | undefined> {
-    const sql = `
+    const result = await pool.query(
+      `
       UPDATE booking_slots
       SET
-        start_time = COALESCE($1, start_time),
-        end_time = COALESCE($2, end_time),
-        is_available = COALESCE($3, is_available),
+        slot_time = COALESCE($1,slot_time),
         updated_at = NOW()
-      WHERE id = $4
+      WHERE id=$2
       RETURNING *
-    `;
-
-    const result = await pool.query(sql, [
-      data.start_time ?? null,
-      data.end_time ?? null,
-      data.is_available ?? null,
-      id,
-    ]);
+      `,
+      [data.slot_time ?? null, id],
+    );
 
     return result.rows[0];
   }
 
-  // DELETE BOOKING SLOT
-  static async deleteById(id: number): Promise<BookingSlot | undefined> {
-    const sql = `
-      DELETE FROM booking_slots
-      WHERE id = $1
-      RETURNING *
-    `;
+  // DELETE
 
-    const result = await pool.query(sql, [id]);
+  static async deleteById(id: number): Promise<BookingSlot | undefined> {
+    const result = await pool.query(
+      `
+      DELETE FROM booking_slots
+      WHERE id=$1
+      RETURNING *
+      `,
+      [id],
+    );
 
     return result.rows[0];
   }

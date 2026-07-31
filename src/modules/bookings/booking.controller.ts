@@ -4,14 +4,12 @@ import { BookingService } from "./booking.service";
 export class BookingController {
   // CREATE BOOKING
   static async create(req: Request, res: Response) {
-    const { customer_id, shop_id, barber_id, booking_slot_id } = req.body;
+    const { customer_id, slot_id } = req.body;
 
     try {
       const booking = await BookingService.create({
         customer_id,
-        shop_id,
-        barber_id,
-        booking_slot_id,
+        slot_id,
       });
 
       return res.status(201).json(booking);
@@ -33,24 +31,6 @@ export class BookingController {
       ) {
         return res.status(409).json({
           message: "Booking slot is not available",
-        });
-      }
-
-      if (
-        error instanceof Error &&
-        error.message === "BOOKING_SLOT_SHOP_MISMATCH"
-      ) {
-        return res.status(400).json({
-          message: "Booking slot does not belong to this shop",
-        });
-      }
-
-      if (
-        error instanceof Error &&
-        error.message === "BOOKING_SLOT_BARBER_MISMATCH"
-      ) {
-        return res.status(400).json({
-          message: "Booking slot does not belong to this barber",
         });
       }
 

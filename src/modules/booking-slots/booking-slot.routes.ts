@@ -29,18 +29,13 @@ router.get(
   BookingSlotController.getAll,
 );
 
-// GET AVAILABLE SLOTS BY SHOP
-// Public
+// GET SLOTS BY BARBER
+// Barber + Admin
 router.get(
-  "/shop/:shopId/available",
-  BookingSlotController.getAvailableByShopId,
-);
-
-// GET AVAILABLE SLOTS BY BARBER
-// Public
-router.get(
-  "/barber/:barberId/available",
-  BookingSlotController.getAvailableByBarberId,
+  "/barber/:barberId",
+  authMiddleware,
+  authorize("barber", "admin"),
+  BookingSlotController.getByBarberId,
 );
 
 // GET BOOKING SLOT BY ID

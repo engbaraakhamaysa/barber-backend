@@ -1,39 +1,33 @@
-import { BookingSlotRepository } from "./booking-slot.repository";
 import {
   BookingSlot,
   CreateBookingSlotInput,
   UpdateBookingSlotInput,
 } from "./booking-slot.types";
 
+import { BookingSlotRepository } from "./booking-slot.repository";
+
 export class BookingSlotService {
-  // CREATE BOOKING SLOT
+  // CREATE
   static async create(data: CreateBookingSlotInput): Promise<BookingSlot> {
     return BookingSlotRepository.create(data);
   }
 
-  // GET ALL BOOKING SLOTS
+  // GET ALL
   static async getAll(): Promise<BookingSlot[]> {
     return BookingSlotRepository.getAll();
   }
 
-  // GET BOOKING SLOT BY ID
+  // GET BY ID
   static async getById(id: number): Promise<BookingSlot | undefined> {
     return BookingSlotRepository.getById(id);
   }
 
-  // GET AVAILABLE SLOTS BY SHOP
-  static async getAvailableByShopId(shopId: number): Promise<BookingSlot[]> {
-    return BookingSlotRepository.getAvailableByShopId(shopId);
+  // GET BY BARBER
+  static async getByBarberId(barberId: number): Promise<BookingSlot[]> {
+    return BookingSlotRepository.getByBarberId(barberId);
   }
 
-  // GET AVAILABLE SLOTS BY BARBER
-  static async getAvailableByBarberId(
-    barberId: number,
-  ): Promise<BookingSlot[]> {
-    return BookingSlotRepository.getAvailableByBarberId(barberId);
-  }
-
-  // UPDATE BOOKING SLOT
+  // UPDATE
   static async update(
     id: number,
     data: UpdateBookingSlotInput,
@@ -41,7 +35,7 @@ export class BookingSlotService {
     return BookingSlotRepository.update(id, data);
   }
 
-  // DELETE BOOKING SLOT
+  // DELETE
   static async deleteById(id: number): Promise<BookingSlot | undefined> {
     return BookingSlotRepository.deleteById(id);
   }

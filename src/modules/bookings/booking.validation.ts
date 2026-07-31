@@ -14,7 +14,7 @@ export function validateCreateBooking(
   res: Response,
   next: NextFunction,
 ) {
-  const { customer_id, shop_id, barber_id, booking_slot_id } = req.body;
+  const { customer_id, slot_id } = req.body;
 
   if (
     customer_id === undefined ||
@@ -28,35 +28,13 @@ export function validateCreateBooking(
   }
 
   if (
-    shop_id === undefined ||
-    typeof shop_id !== "number" ||
-    !Number.isInteger(shop_id) ||
-    shop_id <= 0
+    slot_id === undefined ||
+    typeof slot_id !== "number" ||
+    !Number.isInteger(slot_id) ||
+    slot_id <= 0
   ) {
     return res.status(400).json({
-      message: "Valid shop_id is required",
-    });
-  }
-
-  if (
-    barber_id === undefined ||
-    typeof barber_id !== "number" ||
-    !Number.isInteger(barber_id) ||
-    barber_id <= 0
-  ) {
-    return res.status(400).json({
-      message: "Valid barber_id is required",
-    });
-  }
-
-  if (
-    booking_slot_id === undefined ||
-    typeof booking_slot_id !== "number" ||
-    !Number.isInteger(booking_slot_id) ||
-    booking_slot_id <= 0
-  ) {
-    return res.status(400).json({
-      message: "Valid booking_slot_id is required",
+      message: "Valid slot_id is required",
     });
   }
 
