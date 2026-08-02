@@ -4,7 +4,7 @@
   "description": "This is a backend project for Barber Shop system.",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/server.ts",
+    "dev": "ts-node --files src/server.ts",
     "build": "tsc",
     "test": "NODE_ENV=test npm run build && NODE_ENV=test jasmine",
     "test:integration": "npm run build && NODE_ENV=test jasmine \"dist/tests/integration/**/*.spec.js\"",
@@ -40,8 +40,10 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^7.2.1",
     "jasmine": "^6.3.0",
     "jasmine-spec-reporter": "^7.0.0",
+    "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   }

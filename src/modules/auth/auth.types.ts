@@ -29,3 +29,8 @@ export interface CreateUserInput {
   password: string;
   role: UserRole;
 }
+
+export interface AuthUserRecord extends AuthUser {
+  password: string;
+  is_active: boolean;
+}

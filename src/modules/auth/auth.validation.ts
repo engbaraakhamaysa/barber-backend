@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { UserRole } from "./auth.types";
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 export function validateRegister(
   req: Request,
@@ -14,7 +17,7 @@ export function validateRegister(
     });
   }
 
-  if (typeof email !== "string" || !email.includes("@")) {
+  if (typeof email !== "string" || !isValidEmail(email)) {
     return res.status(400).json({
       message: "Valid email is required",
     });
@@ -26,13 +29,16 @@ export function validateRegister(
     });
   }
 
+  req.body.name = name.trim();
+  req.body.email = email.trim().toLowerCase();
+
   next();
 }
 
 export function validateLogin(req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body;
 
-  if (typeof email !== "string" || !email.includes("@")) {
+  if (typeof email !== "string" || !isValidEmail(email)) {
     return res.status(400).json({
       message: "Valid email is required",
     });
@@ -43,6 +49,8 @@ export function validateLogin(req: Request, res: Response, next: NextFunction) {
       message: "Password is required",
     });
   }
+
+  req.body.email = email.trim().toLowerCase();
 
   next();
 }

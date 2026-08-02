@@ -10,12 +10,14 @@ describe("AuthService", () => {
     email: "baraa@test.com",
     password: "hashed-password",
     role: "user" as const,
-    status: "active" as const,
+    is_active: true,
   };
 
   describe("register", () => {
     it("should register a new user", async () => {
       spyOn(AuthRepository, "findByEmail").and.resolveTo(undefined);
+
+      spyOn(PasswordUtils, "hashPassword").and.resolveTo("hashed-password");
 
       spyOn(AuthRepository, "create").and.resolveTo({
         id: 1,
@@ -27,7 +29,7 @@ describe("AuthService", () => {
       const result = await AuthService.register({
         name: "Baraa",
         email: "baraa@test.com",
-        password: "123456",
+        password: "12345678",
       });
 
       expect(AuthRepository.findByEmail).toHaveBeenCalledWith("baraa@test.com");
@@ -44,7 +46,7 @@ describe("AuthService", () => {
         AuthService.register({
           name: "Baraa",
           email: "baraa@test.com",
-          password: "123456",
+          password: "12345678",
         }),
       ).toBeRejectedWithError("EMAIL_ALREADY_REGISTERED");
     });
@@ -60,7 +62,7 @@ describe("AuthService", () => {
 
       const result = await AuthService.login({
         email: "baraa@test.com",
-        password: "123456",
+        password: "12345678",
       });
 
       expect(result.user.email).toBe("baraa@test.com");
@@ -68,16 +70,16 @@ describe("AuthService", () => {
       expect(result.accessToken).toBe("fake-token");
     });
 
-    it("should reject blocked user", async () => {
+    it("should reject inactive user", async () => {
       spyOn(AuthRepository, "findByEmail").and.resolveTo({
         ...mockUser,
-        status: "blocked",
+        is_active: false,
       });
 
       await expectAsync(
         AuthService.login({
           email: "baraa@test.com",
-          password: "123456",
+          password: "12345678",
         }),
       ).toBeRejectedWithError("USER_ACCOUNT_BLOCKED");
     });
@@ -88,7 +90,20 @@ describe("AuthService", () => {
       await expectAsync(
         AuthService.login({
           email: "wrong@test.com",
-          password: "123456",
+          password: "12345678",
+        }),
+      ).toBeRejectedWithError("INVALID_CREDENTIALS");
+    });
+
+    it("should reject wrong password", async () => {
+      spyOn(AuthRepository, "findByEmail").and.resolveTo(mockUser);
+
+      spyOn(PasswordUtils, "comparePassword").and.resolveTo(false);
+
+      await expectAsync(
+        AuthService.login({
+          email: "baraa@test.com",
+          password: "wrong-password",
         }),
       ).toBeRejectedWithError("INVALID_CREDENTIALS");
     });
@@ -113,10 +128,10 @@ describe("AuthService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("should reject blocked current user", async () => {
+    it("should reject inactive current user", async () => {
       spyOn(AuthRepository, "findById").and.resolveTo({
         ...mockUser,
-        status: "blocked",
+        is_active: false,
       });
 
       await expectAsync(AuthService.getCurrentUser(1)).toBeRejectedWithError(
