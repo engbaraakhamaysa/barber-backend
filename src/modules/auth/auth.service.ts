@@ -7,7 +7,6 @@ import {
 } from "./auth.types";
 
 import { generateToken } from "../../utils/jwt";
-
 import { hashPassword, comparePassword } from "../../utils/password";
 
 export class AuthService {
@@ -38,7 +37,7 @@ export class AuthService {
       throw new Error("INVALID_CREDENTIALS");
     }
 
-    if (user.status === "blocked") {
+    if (!user.is_active) {
       throw new Error("USER_ACCOUNT_BLOCKED");
     }
 
@@ -73,7 +72,7 @@ export class AuthService {
       return undefined;
     }
 
-    if (user.status === "blocked") {
+    if (!user.is_active) {
       throw new Error("USER_ACCOUNT_BLOCKED");
     }
 

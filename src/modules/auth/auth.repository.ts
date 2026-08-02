@@ -1,9 +1,9 @@
 import pool from "../../config/db";
-import { AuthUser, RegisterInput, CreateUserInput } from "./auth.types";
+import { AuthUser, CreateUserInput } from "./auth.types";
 
 interface UserRecord extends AuthUser {
   password: string;
-  status: "active" | "blocked";
+  is_active: boolean;
 }
 
 export class AuthRepository {
@@ -16,7 +16,7 @@ export class AuthRepository {
         email,
         password,
         role,
-        status
+        is_active
       FROM users
       WHERE email = $1
       LIMIT 1
@@ -36,7 +36,7 @@ export class AuthRepository {
         email,
         password,
         role,
-        status
+        is_active
       FROM users
       WHERE id = $1
       LIMIT 1
