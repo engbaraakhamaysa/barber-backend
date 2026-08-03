@@ -1,9 +1,18 @@
 import { AuthService } from "../../../src/modules/auth/auth.service";
-import { AuthRepository } from "../../../src/modules/auth/auth.repository";
+import { UserRepository } from "../../../src/modules/users/user.repository";
+
 import * as PasswordUtils from "../../../src/utils/password";
 import * as JwtUtils from "../../../src/utils/jwt";
 
+///////////////////////////////////////////
+// AUTH SERVICE TESTS
+// Test authentication business logic
+// Repository and utilities are mocked
+///////////////////////////////////////////
 describe("AuthService", () => {
+  ///////////////////////////////////////////
+  // Mock user returned from database
+  ///////////////////////////////////////////
   const mockUser = {
     id: 1,
     name: "Baraa",
@@ -11,20 +20,23 @@ describe("AuthService", () => {
     password: "hashed-password",
     role: "user" as const,
     is_active: true,
+    created_at: new Date(),
+    updated_at: new Date(),
   };
 
+  ///////////////////////////////////////////
+  // REGISTER TESTS
+  ///////////////////////////////////////////
   describe("register", () => {
+    ///////////////////////////////////////////
+    // Should create new user successfully
+    ///////////////////////////////////////////
     it("should register a new user", async () => {
-      spyOn(AuthRepository, "findByEmail").and.resolveTo(undefined);
+      spyOn(UserRepository, "getByEmail").and.resolveTo(undefined);
 
       spyOn(PasswordUtils, "hashPassword").and.resolveTo("hashed-password");
 
-      spyOn(AuthRepository, "create").and.resolveTo({
-        id: 1,
-        name: "Baraa",
-        email: "baraa@test.com",
-        role: "user",
-      });
+      spyOn(UserRepository, "create").and.resolveTo(mockUser);
 
       const result = await AuthService.register({
         name: "Baraa",
@@ -32,15 +44,18 @@ describe("AuthService", () => {
         password: "12345678",
       });
 
-      expect(AuthRepository.findByEmail).toHaveBeenCalledWith("baraa@test.com");
+      expect(UserRepository.getByEmail).toHaveBeenCalledWith("baraa@test.com");
 
-      expect(AuthRepository.create).toHaveBeenCalled();
+      expect(UserRepository.create).toHaveBeenCalled();
 
       expect(result.email).toBe("baraa@test.com");
     });
 
+    ///////////////////////////////////////////
+    // Should reject duplicate email
+    ///////////////////////////////////////////
     it("should reject duplicate email", async () => {
-      spyOn(AuthRepository, "findByEmail").and.resolveTo(mockUser);
+      spyOn(UserRepository, "getByEmail").and.resolveTo(mockUser);
 
       await expectAsync(
         AuthService.register({
@@ -52,9 +67,15 @@ describe("AuthService", () => {
     });
   });
 
+  ///////////////////////////////////////////
+  // LOGIN TESTS
+  ///////////////////////////////////////////
   describe("login", () => {
+    ///////////////////////////////////////////
+    // Should login with correct credentials
+    ///////////////////////////////////////////
     it("should login user with correct password", async () => {
-      spyOn(AuthRepository, "findByEmail").and.resolveTo(mockUser);
+      spyOn(UserRepository, "getByEmail").and.resolveTo(mockUser);
 
       spyOn(PasswordUtils, "comparePassword").and.resolveTo(true);
 
@@ -70,8 +91,11 @@ describe("AuthService", () => {
       expect(result.accessToken).toBe("fake-token");
     });
 
+    ///////////////////////////////////////////
+    // Should reject blocked account
+    ///////////////////////////////////////////
     it("should reject inactive user", async () => {
-      spyOn(AuthRepository, "findByEmail").and.resolveTo({
+      spyOn(UserRepository, "getByEmail").and.resolveTo({
         ...mockUser,
         is_active: false,
       });
@@ -84,8 +108,11 @@ describe("AuthService", () => {
       ).toBeRejectedWithError("USER_ACCOUNT_BLOCKED");
     });
 
+    ///////////////////////////////////////////
+    // Should reject unknown user
+    ///////////////////////////////////////////
     it("should reject invalid credentials", async () => {
-      spyOn(AuthRepository, "findByEmail").and.resolveTo(undefined);
+      spyOn(UserRepository, "getByEmail").and.resolveTo(undefined);
 
       await expectAsync(
         AuthService.login({
@@ -95,8 +122,11 @@ describe("AuthService", () => {
       ).toBeRejectedWithError("INVALID_CREDENTIALS");
     });
 
+    ///////////////////////////////////////////
+    // Should reject wrong password
+    ///////////////////////////////////////////
     it("should reject wrong password", async () => {
-      spyOn(AuthRepository, "findByEmail").and.resolveTo(mockUser);
+      spyOn(UserRepository, "getByEmail").and.resolveTo(mockUser);
 
       spyOn(PasswordUtils, "comparePassword").and.resolveTo(false);
 
@@ -109,9 +139,15 @@ describe("AuthService", () => {
     });
   });
 
+  ///////////////////////////////////////////
+  // CURRENT USER TESTS
+  ///////////////////////////////////////////
   describe("getCurrentUser", () => {
+    ///////////////////////////////////////////
+    // Should return authenticated user
+    ///////////////////////////////////////////
     it("should return current user", async () => {
-      spyOn(AuthRepository, "findById").and.resolveTo(mockUser);
+      spyOn(UserRepository, "getById").and.resolveTo(mockUser);
 
       const result = await AuthService.getCurrentUser(1);
 
@@ -120,16 +156,22 @@ describe("AuthService", () => {
       expect(result?.email).toBe("baraa@test.com");
     });
 
+    ///////////////////////////////////////////
+    // Should return undefined when not found
+    ///////////////////////////////////////////
     it("should return undefined if user not found", async () => {
-      spyOn(AuthRepository, "findById").and.resolveTo(undefined);
+      spyOn(UserRepository, "getById").and.resolveTo(undefined);
 
       const result = await AuthService.getCurrentUser(99);
 
       expect(result).toBeUndefined();
     });
 
+    ///////////////////////////////////////////
+    // Should reject blocked current user
+    ///////////////////////////////////////////
     it("should reject inactive current user", async () => {
-      spyOn(AuthRepository, "findById").and.resolveTo({
+      spyOn(UserRepository, "getById").and.resolveTo({
         ...mockUser,
         is_active: false,
       });

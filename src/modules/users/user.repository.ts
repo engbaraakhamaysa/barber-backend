@@ -2,7 +2,10 @@ import pool from "../../config/db";
 import { User, CreateUserInput, UpdateUserInput } from "./user.types";
 
 export class UserRepository {
+  ///////////////////////////////////////////
   // CREATE USER
+  // Insert new user into database
+  ///////////////////////////////////////////
   static async create(data: CreateUserInput): Promise<User> {
     const sql = `
       INSERT INTO users (
@@ -25,7 +28,10 @@ export class UserRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // GET USER BY ID
+  // Find user using unique user id
+  ///////////////////////////////////////////
   static async getById(id: number): Promise<User | undefined> {
     const sql = `
       SELECT *
@@ -38,13 +44,15 @@ export class UserRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // GET USER BY EMAIL
+  // Used mainly for authentication login
+  ///////////////////////////////////////////
   static async getByEmail(email: string): Promise<User | undefined> {
     const sql = `
       SELECT *
       FROM users
       WHERE email = $1
-      LIMIT 1
     `;
 
     const result = await pool.query(sql, [email]);
@@ -52,7 +60,11 @@ export class UserRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // UPDATE USER
+  // Update provided fields only
+  // Uses COALESCE for partial updates
+  ///////////////////////////////////////////
   static async update(
     id: number,
     data: UpdateUserInput,
@@ -80,7 +92,10 @@ export class UserRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // DELETE USER
+  // Remove user permanently from database
+  ///////////////////////////////////////////
   static async deleteById(id: number): Promise<User | undefined> {
     const sql = `
       DELETE FROM users

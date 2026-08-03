@@ -6,10 +6,15 @@
   "scripts": {
     "dev": "ts-node --files src/server.ts",
     "build": "tsc",
-    "test": "NODE_ENV=test npm run build && NODE_ENV=test jasmine",
-    "test:integration": "npm run build && NODE_ENV=test jasmine \"dist/tests/integration/**/*.spec.js\"",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:unit && npm run test:integration",
     "test:unit": "npm run build && NODE_ENV=test jasmine \"dist/tests/unit/**/*.spec.js\"",
-    "typecheck": "tsc --noEmit"
+    "test:integration": "npm run build && NODE_ENV=test jasmine \"dist/tests/integration/**/*.spec.js\"",
+    "db:migrate": "db-migrate up",
+    "db:migrate:test": "NODE_ENV=test db-migrate up",
+    "db:rollback": "db-migrate down",
+    "dev:docker": "docker compose up -d && npm run dev"
   },
   "repository": {
     "type": "git",

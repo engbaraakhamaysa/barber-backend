@@ -7,7 +7,11 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
-// CREATE USER
+///////////////////////////////////////////
+// CREATE USER ROUTE
+// Protected route for admin only
+// Validate data before creating user
+///////////////////////////////////////////
 router.post(
   "/",
   authMiddleware,
@@ -16,10 +20,18 @@ router.post(
   UserController.create,
 );
 
-// GET USER BY ID
+///////////////////////////////////////////
+// GET USER BY ID ROUTE
+// Get single user by id
+// Accessible by admin only
+///////////////////////////////////////////
 router.get("/:id", authMiddleware, authorize("admin"), UserController.getById);
 
-// UPDATE USER
+///////////////////////////////////////////
+// UPDATE USER ROUTE
+// Update user information
+// Validate provided fields before update
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -28,7 +40,11 @@ router.put(
   UserController.update,
 );
 
-// DELETE USER
+///////////////////////////////////////////
+// DELETE USER ROUTE
+// Delete user by id
+// Accessible by admin only
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,
