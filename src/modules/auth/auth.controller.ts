@@ -2,9 +2,13 @@ import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 
 export class AuthController {
+  ///////////////////////////////////////////
   // REGISTER
+  // Create new user account
+  // Role is passed for account creation
+  ///////////////////////////////////////////
   static async register(req: Request, res: Response) {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     try {
       const user = await AuthService.register({
@@ -35,7 +39,11 @@ export class AuthController {
     }
   }
 
+  ///////////////////////////////////////////
   // LOGIN
+  // Verify email and password
+  // Return user data and access token
+  ///////////////////////////////////////////
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
 
@@ -49,18 +57,28 @@ export class AuthController {
     } catch (error) {
       console.error("Controller error (login):", error);
 
+      ///////////////////////////////////////////
+      // Invalid credentials
+      // Wrong email or password
+      ///////////////////////////////////////////
       if (error instanceof Error && error.message === "INVALID_CREDENTIALS") {
         return res.status(401).json({
           message: "Invalid email or password",
         });
       }
 
+      ///////////////////////////////////////////
+      // Blocked account
+      ///////////////////////////////////////////
       if (error instanceof Error && error.message === "USER_ACCOUNT_BLOCKED") {
         return res.status(403).json({
           message: "User account is blocked",
         });
       }
 
+      ///////////////////////////////////////////
+      // JWT configuration error
+      ///////////////////////////////////////////
       if (
         error instanceof Error &&
         error.message === "JWT_SECRET_NOT_CONFIGURED"
@@ -76,7 +94,11 @@ export class AuthController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET CURRENT USER
+  // Return authenticated user information
+  // Uses user id from JWT token
+  ///////////////////////////////////////////
   static async me(req: Request, res: Response) {
     try {
       if (!req.user) {

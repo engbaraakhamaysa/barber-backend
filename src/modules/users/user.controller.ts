@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { UserService } from "./user.service";
 
 export class UserController {
+  ///////////////////////////////////////////
   // CREATE USER
+  // Receive user data and call service
+  // Return created user response
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { name, email, password, role } = req.body;
 
@@ -24,7 +28,11 @@ export class UserController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET USER BY ID
+  // Validate user id from params
+  // Return user data if exists
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const userId = Number(req.params.id);
 
@@ -53,7 +61,11 @@ export class UserController {
     }
   }
 
+  ///////////////////////////////////////////
   // UPDATE USER
+  // Validate id and update provided fields
+  // Return updated user response
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const userId = Number(req.params.id);
 
@@ -89,7 +101,11 @@ export class UserController {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE USER
+  // Validate id and remove user
+  // Return deletion result
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const userId = Number(req.params.id);
 

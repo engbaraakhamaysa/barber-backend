@@ -1,9 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 
+///////////////////////////////////////////
+// Check email format
+// Prevent invalid email values
+///////////////////////////////////////////
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+///////////////////////////////////////////
+// REGISTER VALIDATION
+// Validate data before creating account
+// Password is not modified
+///////////////////////////////////////////
 export function validateRegister(
   req: Request,
   res: Response,
@@ -11,45 +20,75 @@ export function validateRegister(
 ) {
   const { name, email, password } = req.body;
 
+  ///////////////////////////////////////////
+  // Validate name
+  ///////////////////////////////////////////
   if (typeof name !== "string" || name.trim().length < 2) {
     return res.status(400).json({
       message: "Name must be at least 2 characters",
     });
   }
 
+  ///////////////////////////////////////////
+  // Validate email
+  ///////////////////////////////////////////
   if (typeof email !== "string" || !isValidEmail(email)) {
     return res.status(400).json({
       message: "Valid email is required",
     });
   }
 
+  ///////////////////////////////////////////
+  // Validate password
+  // Do not trim password because spaces
+  // may be part of the password
+  ///////////////////////////////////////////
   if (typeof password !== "string" || password.length < 8) {
     return res.status(400).json({
       message: "Password must be at least 8 characters",
     });
   }
 
+  ///////////////////////////////////////////
+  // Normalize user input
+  // Email is converted to lowercase
+  // Name removes extra spaces
+  ///////////////////////////////////////////
   req.body.name = name.trim();
   req.body.email = email.trim().toLowerCase();
 
   next();
 }
 
+///////////////////////////////////////////
+// LOGIN VALIDATION
+// Validate credentials before authentication
+///////////////////////////////////////////
 export function validateLogin(req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body;
 
+  ///////////////////////////////////////////
+  // Validate email
+  ///////////////////////////////////////////
   if (typeof email !== "string" || !isValidEmail(email)) {
     return res.status(400).json({
       message: "Valid email is required",
     });
   }
 
+  ///////////////////////////////////////////
+  // Validate password exists
+  // Password is not modified
+  ///////////////////////////////////////////
   if (typeof password !== "string" || password.length === 0) {
     return res.status(400).json({
       message: "Password is required",
     });
   }
 
+  ///////////////////////////////////////////
+  // Normalize email
+  ///////////////////////////////////////////
   req.body.email = email.trim().toLowerCase();
 
   next();
