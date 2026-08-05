@@ -70,21 +70,23 @@ export class UserRepository {
     data: UpdateUserInput,
   ): Promise<User | undefined> {
     const sql = `
-      UPDATE users
-      SET
-        name = COALESCE($1, name),
-        email = COALESCE($2, email),
-        password = COALESCE($3, password),
-        is_active = COALESCE($4, is_active),
-        updated_at = NOW()
-      WHERE id = $5
-      RETURNING *
-    `;
+    UPDATE users
+    SET
+      name = COALESCE($1, name),
+      email = COALESCE($2, email),
+      password = COALESCE($3, password),
+      role = COALESCE($4, role),
+      is_active = COALESCE($5, is_active),
+      updated_at = NOW()
+    WHERE id = $6
+    RETURNING *
+  `;
 
     const result = await pool.query(sql, [
       data.name ?? null,
       data.email ?? null,
       data.password ?? null,
+      data.role ?? null,
       data.is_active ?? null,
       id,
     ]);
@@ -106,5 +108,21 @@ export class UserRepository {
     const result = await pool.query(sql, [id]);
 
     return result.rows[0];
+  }
+
+  ///////////////////////////////////////////
+  // GET ALL USERS
+  // Return all users from database
+  ///////////////////////////////////////////
+  static async getAll(): Promise<User[]> {
+    const sql = `
+    SELECT *
+    FROM users
+    ORDER BY created_at DESC
+  `;
+
+    const result = await pool.query(sql);
+
+    return result.rows;
   }
 }

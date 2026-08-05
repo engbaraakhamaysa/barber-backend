@@ -90,4 +90,14 @@ export class UserService {
 
     return userResponse;
   }
+
+  ///////////////////////////////////////////
+  // GET ALL USERS
+  // Return users without passwords
+  ///////////////////////////////////////////
+  static async getAll(): Promise<UserResponse[]> {
+    const users = await UserRepository.getAll();
+
+    return users.map((user) => this.toResponse(user));
+  }
 }

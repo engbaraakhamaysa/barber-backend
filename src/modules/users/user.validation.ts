@@ -11,40 +11,24 @@ export function validateCreateUser(
 ) {
   const { name, email, password, role } = req.body;
 
-  ///////////////////////////////////////////
-  // VALIDATE NAME
-  // Name must be string and at least 2 characters
-  ///////////////////////////////////////////
   if (!name || typeof name !== "string" || name.trim().length < 2) {
     return res.status(400).json({
       message: "Name must be at least 2 characters",
     });
   }
 
-  ///////////////////////////////////////////
-  // VALIDATE EMAIL
-  // Email is required and must be string
-  ///////////////////////////////////////////
   if (!email || typeof email !== "string") {
     return res.status(400).json({
       message: "Valid email is required",
     });
   }
 
-  ///////////////////////////////////////////
-  // VALIDATE PASSWORD
-  // Password is required and minimum 6 characters
-  ///////////////////////////////////////////
   if (!password || typeof password !== "string" || password.length < 6) {
     return res.status(400).json({
       message: "Password must be at least 6 characters",
     });
   }
 
-  ///////////////////////////////////////////
-  // VALIDATE ROLE
-  // Allow only supported user roles
-  ///////////////////////////////////////////
   if (!role || !["admin", "barber", "user"].includes(role)) {
     return res.status(400).json({
       message: "Valid role is required",
@@ -63,12 +47,9 @@ export function validateUpdateUser(
   res: Response,
   next: NextFunction,
 ) {
-  const { name, email, password, is_active } = req.body;
+  const { name, email, password, role, is_active } = req.body;
 
-  ///////////////////////////////////////////
-  // VALIDATE NAME IF PROVIDED
-  // Allow partial update
-  ///////////////////////////////////////////
+  // Validate name if provided
   if (
     name !== undefined &&
     (typeof name !== "string" || name.trim().length < 2)
@@ -78,19 +59,14 @@ export function validateUpdateUser(
     });
   }
 
-  ///////////////////////////////////////////
-  // VALIDATE EMAIL IF PROVIDED
-  ///////////////////////////////////////////
+  // Validate email if provided
   if (email !== undefined && typeof email !== "string") {
     return res.status(400).json({
       message: "Valid email is required",
     });
   }
 
-  ///////////////////////////////////////////
-  // VALIDATE PASSWORD IF PROVIDED
-  // Password update requires minimum length
-  ///////////////////////////////////////////
+  // Validate password if provided
   if (
     password !== undefined &&
     (typeof password !== "string" || password.length < 6)
@@ -100,10 +76,14 @@ export function validateUpdateUser(
     });
   }
 
-  ///////////////////////////////////////////
-  // VALIDATE ACCOUNT STATUS
-  // is_active must be boolean value
-  ///////////////////////////////////////////
+  // Validate role if provided
+  if (role !== undefined && !["admin", "barber", "user"].includes(role)) {
+    return res.status(400).json({
+      message: "Invalid role",
+    });
+  }
+
+  // Validate account status if provided
   if (is_active !== undefined && typeof is_active !== "boolean") {
     return res.status(400).json({
       message: "is_active must be a boolean",
