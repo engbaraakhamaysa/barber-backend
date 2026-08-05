@@ -7,6 +7,8 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
+router.get("/", authMiddleware, authorize("admin"), UserController.getAll);
+
 ///////////////////////////////////////////
 // CREATE USER ROUTE
 // Protected route for admin only

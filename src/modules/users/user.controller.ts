@@ -75,13 +75,13 @@ export class UserController {
       });
     }
 
-    const { name, email, password, is_active } = req.body;
-
+    const { name, email, password, role, is_active } = req.body;
     try {
       const user = await UserService.update(userId, {
         name,
         email,
         password,
+        role,
         is_active,
       });
 
@@ -133,6 +133,24 @@ export class UserController {
 
       return res.status(500).json({
         message: "Failed to delete user",
+      });
+    }
+  }
+
+  ///////////////////////////////////////////
+  // GET ALL USERS
+  // Return all system users
+  ///////////////////////////////////////////
+  static async getAll(req: Request, res: Response) {
+    try {
+      const users = await UserService.getAll();
+
+      return res.status(200).json(users);
+    } catch (error) {
+      console.error("Controller error (get all users):", error);
+
+      return res.status(500).json({
+        message: "Failed to get users",
       });
     }
   }

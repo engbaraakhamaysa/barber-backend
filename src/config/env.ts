@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const env = {
-  port: Number(process.env.PORT) || 3000,
+  port: Number(process.env.PORT) || 3001,
 
   db: {
     host: process.env.DB_HOST || "localhost",
