@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { CustomerService } from "./customer.service";
 
 export class CustomerController {
+  ///////////////////////////////////////////
   // CREATE CUSTOMER
+  // Receive customer data from request body
+  // Create the customer through the service
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { name, phone, user_id } = req.body;
 
@@ -23,7 +27,11 @@ export class CustomerController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET ALL CUSTOMERS
+  // Retrieve all customers through the service
+  // Return the customer list to the client
+  ///////////////////////////////////////////
   static async getAll(req: Request, res: Response) {
     try {
       const customers = await CustomerService.getAll();
@@ -38,10 +46,18 @@ export class CustomerController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET CUSTOMER BY ID
+  // Validate customer ID from route parameters
+  // Return the customer when found
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const customerId = Number(req.params.id);
 
+    ///////////////////////////////////////////
+    // Validate customer ID
+    // Ensure the provided ID is a valid number
+    ///////////////////////////////////////////
     if (isNaN(customerId)) {
       return res.status(400).json({
         message: "Invalid customer id",
@@ -67,10 +83,18 @@ export class CustomerController {
     }
   }
 
+  ///////////////////////////////////////////
   // UPDATE CUSTOMER
+  // Validate customer ID from route parameters
+  // Update the provided customer fields
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const customerId = Number(req.params.id);
 
+    ///////////////////////////////////////////
+    // Validate customer ID
+    // Ensure the provided ID is a valid number
+    ///////////////////////////////////////////
     if (isNaN(customerId)) {
       return res.status(400).json({
         message: "Invalid customer id",
@@ -101,10 +125,18 @@ export class CustomerController {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE CUSTOMER
+  // Validate customer ID from route parameters
+  // Permanently remove the customer
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const customerId = Number(req.params.id);
 
+    ///////////////////////////////////////////
+    // Validate customer ID
+    // Ensure the provided ID is a valid number
+    ///////////////////////////////////////////
     if (isNaN(customerId)) {
       return res.status(400).json({
         message: "Invalid customer id",

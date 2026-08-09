@@ -4,9 +4,14 @@ import { validateCreateShop, validateUpdateShop } from "./shop.validation";
 
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize";
+
 const router = Router();
 
-// CREATE SHOP
+///////////////////////////////////////////
+// CREATE SHOP ROUTE
+// Protected route for admin only
+// Validate data before creating shop
+///////////////////////////////////////////
 router.post(
   "/",
   authMiddleware,
@@ -15,13 +20,25 @@ router.post(
   ShopController.create,
 );
 
-// GET ALL SHOPS
+///////////////////////////////////////////
+// GET ALL SHOPS ROUTE
+// Get all shops
+// Requires valid authentication
+///////////////////////////////////////////
 router.get("/", authMiddleware, ShopController.getAll);
 
-// GET SHOP BY ID
+///////////////////////////////////////////
+// GET SHOP BY ID ROUTE
+// Get single shop by id
+// Requires valid authentication
+///////////////////////////////////////////
 router.get("/:id", authMiddleware, ShopController.getById);
 
-// UPDATE SHOP
+///////////////////////////////////////////
+// UPDATE SHOP ROUTE
+// Update shop information
+// Validate provided fields before update
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -30,7 +47,11 @@ router.put(
   ShopController.update,
 );
 
-// DELETE SHOP
+///////////////////////////////////////////
+// DELETE SHOP ROUTE
+// Delete shop by id
+// Accessible by admin only
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,

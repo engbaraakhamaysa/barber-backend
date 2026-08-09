@@ -10,8 +10,13 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
+///////////////////////////////////////////
 // CREATE BOOKING SLOT
-// Barber + Admin
+// Create a new booking slot for a barber
+// Requires authentication
+// Accessible by barber and admin users only
+// Validate booking slot data before creation
+///////////////////////////////////////////
 router.post(
   "/",
   authMiddleware,
@@ -20,8 +25,12 @@ router.post(
   BookingSlotController.create,
 );
 
+///////////////////////////////////////////
 // GET ALL BOOKING SLOTS
-// Barber + Admin
+// Return all booking slots in the system
+// Requires authentication
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.get(
   "/",
   authMiddleware,
@@ -29,8 +38,12 @@ router.get(
   BookingSlotController.getAll,
 );
 
+///////////////////////////////////////////
 // GET SLOTS BY BARBER
-// Barber + Admin
+// Return all booking slots belonging to a specific barber
+// Requires authentication
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.get(
   "/barber/:barberId",
   authMiddleware,
@@ -38,8 +51,12 @@ router.get(
   BookingSlotController.getByBarberId,
 );
 
+///////////////////////////////////////////
 // GET BOOKING SLOT BY ID
-// Barber + Admin
+// Return a specific booking slot by ID
+// Requires authentication
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.get(
   "/:id",
   authMiddleware,
@@ -47,8 +64,13 @@ router.get(
   BookingSlotController.getById,
 );
 
+///////////////////////////////////////////
 // UPDATE BOOKING SLOT
-// Barber + Admin
+// Update the time of an existing booking slot
+// Requires authentication
+// Accessible by barber and admin users only
+// Validate provided fields before updating
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -57,8 +79,12 @@ router.put(
   BookingSlotController.update,
 );
 
+///////////////////////////////////////////
 // DELETE BOOKING SLOT
-// Barber + Admin
+// Permanently delete a booking slot by ID
+// Requires authentication
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,

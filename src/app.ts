@@ -16,9 +16,11 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
 
-// ==========================================================
-// Middlewares
-// ==========================================================
+///////////////////////////////////////////
+// MIDDLEWARES
+// Enable CORS for cross-origin requests
+// Parse incoming requests with JSON payloads
+///////////////////////////////////////////
 
 app.use(
   cors({
@@ -28,9 +30,11 @@ app.use(
 
 app.use(express.json());
 
-// ==========================================================
-// Health Check
-// ==========================================================
+///////////////////////////////////////////
+// HEALTH CHECK
+// Verify that the API is running
+// Return a successful response from the root endpoint
+///////////////////////////////////////////
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -38,9 +42,12 @@ app.get("/", (req, res) => {
   });
 });
 
-// ==========================================================
-// Routes
-// ==========================================================
+///////////////////////////////////////////
+// ROUTES
+// Register application API routes
+// Organize endpoints by application module
+///////////////////////////////////////////
+
 app.use("/api/users", userRoutes);
 
 app.use("/api/shops", shopRoutes);
@@ -52,14 +59,14 @@ app.use("/api/queue", queueRoutes);
 app.use("/api/customer-barber-blocks", customerBarberBlockRoutes);
 app.use("/api/auth", authRoutes);
 
-// ==========================================================
-// Error Handling
-// ==========================================================
+///////////////////////////////////////////
+// ERROR HANDLING
+// Handle requests for undefined routes
+// Handle unexpected application errors globally
+///////////////////////////////////////////
 
-// Route not found
 app.use(notFoundMiddleware);
 
-// Global error handler
 app.use(errorMiddleware);
 
 export default app;

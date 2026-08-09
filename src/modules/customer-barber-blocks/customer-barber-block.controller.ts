@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { CustomerBarberBlockService } from "./customer-barber-block.service";
 
 export class CustomerBarberBlockController {
-  // CREATE BLOCK
+  ///////////////////////////////////////////
+  // CREATE CUSTOMER-BARBER BLOCK
+  // Create a new block between a customer and a barber
+  // Returns a conflict when the customer is already blocked by the barber
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { customer_id, barber_id, reason } = req.body;
 
@@ -32,7 +36,11 @@ export class CustomerBarberBlockController {
     }
   }
 
-  // GET BLOCK BY ID
+  ///////////////////////////////////////////
+  // GET CUSTOMER-BARBER BLOCK BY ID
+  // Return a specific customer-barber block by its ID
+  // Return 404 when the block does not exist
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const blockId = Number(req.params.id);
 
@@ -61,7 +69,11 @@ export class CustomerBarberBlockController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET ACTIVE BLOCKS BY BARBER
+  // Return all active customer blocks for a specific barber
+  // Return an empty array when no active blocks exist
+  ///////////////////////////////////////////
   static async getActiveByBarberId(req: Request, res: Response) {
     const barberId = Number(req.params.barberId);
 
@@ -85,7 +97,11 @@ export class CustomerBarberBlockController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET ACTIVE BLOCKS BY CUSTOMER
+  // Return all active barber blocks for a specific customer
+  // Return an empty array when no active blocks exist
+  ///////////////////////////////////////////
   static async getActiveByCustomerId(req: Request, res: Response) {
     const customerId = Number(req.params.customerId);
 
@@ -109,7 +125,11 @@ export class CustomerBarberBlockController {
     }
   }
 
+  ///////////////////////////////////////////
   // UNBLOCK CUSTOMER
+  // Deactivate an active customer-barber block
+  // Return 404 when no active block exists
+  ///////////////////////////////////////////
   static async unblock(req: Request, res: Response) {
     const blockId = Number(req.params.id);
 
@@ -141,7 +161,11 @@ export class CustomerBarberBlockController {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE BLOCK RECORD
+  // Permanently delete a customer-barber block record by ID
+  // Return 404 when the block does not exist
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const blockId = Number(req.params.id);
 

@@ -3,7 +3,11 @@ import { BookingSlotService } from "./booking-slot.service";
 import { UpdateBookingSlotInput } from "./booking-slot.types";
 
 export class BookingSlotController {
+  ///////////////////////////////////////////
   // CREATE BOOKING SLOT
+  // Create a new booking slot for a barber
+  // Convert the provided slot time to a Date
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { barber_id, slot_time } = req.body;
 
@@ -23,7 +27,10 @@ export class BookingSlotController {
     }
   }
 
-  // GET ALL
+  ///////////////////////////////////////////
+  // GET ALL BOOKING SLOTS
+  // Return all booking slots in the system
+  ///////////////////////////////////////////
   static async getAll(req: Request, res: Response) {
     try {
       const bookingSlots = await BookingSlotService.getAll();
@@ -38,7 +45,11 @@ export class BookingSlotController {
     }
   }
 
-  // GET BY ID
+  ///////////////////////////////////////////
+  // GET BOOKING SLOT BY ID
+  // Return a specific booking slot by ID
+  // Validate the booking slot ID before processing
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const id = Number(req.params.id);
 
@@ -67,7 +78,11 @@ export class BookingSlotController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET SLOTS BY BARBER
+  // Return all booking slots for a specific barber
+  // Validate the barber ID before processing
+  ///////////////////////////////////////////
   static async getByBarberId(req: Request, res: Response) {
     const barberId = Number(req.params.barberId);
 
@@ -90,7 +105,11 @@ export class BookingSlotController {
     }
   }
 
-  // UPDATE
+  ///////////////////////////////////////////
+  // UPDATE BOOKING SLOT
+  // Update the scheduled time of a booking slot
+  // Convert the provided slot time to a Date
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const id = Number(req.params.id);
 
@@ -127,7 +146,11 @@ export class BookingSlotController {
     }
   }
 
-  // DELETE
+  ///////////////////////////////////////////
+  // DELETE BOOKING SLOT
+  // Permanently delete a booking slot by ID
+  // Return the deleted booking slot
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const id = Number(req.params.id);
 

@@ -6,7 +6,11 @@ import {
 } from "./customer.types";
 
 export class CustomerRepository {
+  ///////////////////////////////////////////
   // CREATE CUSTOMER
+  // Insert a new customer into the database
+  // Supports optional user account and phone number
+  ///////////////////////////////////////////
   static async create(data: CreateCustomerInput): Promise<Customer> {
     const sql = `
       INSERT INTO customers (
@@ -27,7 +31,11 @@ export class CustomerRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // GET ALL CUSTOMERS
+  // Return all customers from the database
+  // Results are ordered by newest customer first
+  ///////////////////////////////////////////
   static async getAll(): Promise<Customer[]> {
     const sql = `
       SELECT *
@@ -40,7 +48,11 @@ export class CustomerRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // GET CUSTOMER BY ID
+  // Find a customer using their unique ID
+  // Return undefined when the customer does not exist
+  ///////////////////////////////////////////
   static async getById(id: number): Promise<Customer | undefined> {
     const sql = `
       SELECT *
@@ -53,7 +65,11 @@ export class CustomerRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // UPDATE CUSTOMER
+  // Update provided customer fields only
+  // Uses COALESCE to preserve unchanged values
+  ///////////////////////////////////////////
   static async update(
     id: number,
     data: UpdateCustomerInput,
@@ -77,7 +93,11 @@ export class CustomerRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // DELETE CUSTOMER
+  // Permanently remove a customer from database
+  // Return the deleted customer when successful
+  ///////////////////////////////////////////
   static async deleteById(id: number): Promise<Customer | undefined> {
     const sql = `
       DELETE FROM customers

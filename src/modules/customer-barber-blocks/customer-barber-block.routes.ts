@@ -7,8 +7,13 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
-// CREATE BLOCK
-// Barber + Admin
+///////////////////////////////////////////
+// CREATE CUSTOMER-BARBER BLOCK
+// Block a customer from a specific barber
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+// Validate customer, barber, and optional reason before creation
+///////////////////////////////////////////
 router.post(
   "/",
   authMiddleware,
@@ -17,8 +22,12 @@ router.post(
   CustomerBarberBlockController.create,
 );
 
+///////////////////////////////////////////
 // GET ACTIVE BLOCKS BY BARBER
-// Barber + Admin
+// Return all active customer blocks for a specific barber
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/barber/:barberId",
   authMiddleware,
@@ -26,8 +35,12 @@ router.get(
   CustomerBarberBlockController.getActiveByBarberId,
 );
 
+///////////////////////////////////////////
 // GET ACTIVE BLOCKS BY CUSTOMER
-// Barber + Admin
+// Return all active barber blocks for a specific customer
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/customer/:customerId",
   authMiddleware,
@@ -35,8 +48,12 @@ router.get(
   CustomerBarberBlockController.getActiveByCustomerId,
 );
 
-// GET BLOCK BY ID
-// Barber + Admin
+///////////////////////////////////////////
+// GET CUSTOMER-BARBER BLOCK BY ID
+// Return a specific customer-barber block by ID
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/:id",
   authMiddleware,
@@ -44,8 +61,13 @@ router.get(
   CustomerBarberBlockController.getById,
 );
 
+///////////////////////////////////////////
 // UNBLOCK CUSTOMER
-// Barber + Admin
+// Deactivate an active customer-barber block
+// Sets the block as inactive and records the unblocked time
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.patch(
   "/:id/unblock",
   authMiddleware,
@@ -53,8 +75,12 @@ router.patch(
   CustomerBarberBlockController.unblock,
 );
 
+///////////////////////////////////////////
 // DELETE BLOCK RECORD
-// Barber + Admin
+// Permanently delete a customer-barber block record
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,

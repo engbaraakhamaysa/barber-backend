@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { BarberService } from "./barber.service";
 
 export class BarberController {
+  ///////////////////////////////////////////
   // CREATE BARBER
+  // Receive barber data and call service
+  // Return created barber response
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { shop_id, name, email, password } = req.body;
 
@@ -24,7 +28,11 @@ export class BarberController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET BARBER BY ID
+  // Validate barber id from params
+  // Return barber data if exists
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 
@@ -53,7 +61,11 @@ export class BarberController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET BARBERS BY SHOP ID
+  // Validate shop id from params
+  // Return all barbers assigned to shop
+  ///////////////////////////////////////////
   static async getByShopId(req: Request, res: Response) {
     const shopId = Number(req.params.shopId);
 
@@ -76,7 +88,11 @@ export class BarberController {
     }
   }
 
+  ///////////////////////////////////////////
   // UPDATE BARBER
+  // Validate id and update provided fields
+  // Return updated barber response
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 
@@ -112,7 +128,11 @@ export class BarberController {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE BARBER
+  // Validate id and remove barber
+  // Return deletion result
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const barberId = Number(req.params.id);
 

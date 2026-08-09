@@ -5,6 +5,11 @@ export type BookingStatus =
   | "completed"
   | "no_show";
 
+///////////////////////////////////////////
+// BOOKING
+// Represents a customer booking
+// Links a customer to a booking slot
+///////////////////////////////////////////
 export interface Booking {
   id: number;
   customer_id: number;
@@ -14,15 +19,29 @@ export interface Booking {
   updated_at: Date;
 }
 
+///////////////////////////////////////////
+// CREATE BOOKING INPUT
+// Data required to create a booking
+///////////////////////////////////////////
 export interface CreateBookingInput {
   customer_id: number;
   slot_id: number;
 }
 
+///////////////////////////////////////////
+// UPDATE BOOKING INPUT
+// Optional booking fields that can be updated
+///////////////////////////////////////////
 export interface UpdateBookingInput {
   status?: BookingStatus;
 }
 
+///////////////////////////////////////////
+// BOOKING WITH DETAILS
+// Booking data combined with customer,
+// barber, and shop information
+// Used when returning detailed booking data
+///////////////////////////////////////////
 export interface BookingWithDetails extends Booking {
   customer_name: string;
   customer_phone: string | null;

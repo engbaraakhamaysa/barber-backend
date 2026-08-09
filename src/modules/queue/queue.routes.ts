@@ -1,5 +1,7 @@
 import { Router } from "express";
+
 import { QueueController } from "./queue.controller";
+
 import { validateJoinQueue, validateUpdateQueue } from "./queue.validation";
 
 import { authMiddleware } from "../../middlewares/auth.middleware";
@@ -7,12 +9,20 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
+///////////////////////////////////////////
 // JOIN QUEUE
-// Public - Customer can join without account
+// Add a customer to the queue
+// Validation runs before the controller
+// Public route without authentication
+///////////////////////////////////////////
 router.post("/", validateJoinQueue, QueueController.joinQueue);
 
-// GET ALL QUEUE ENTRIES
-// Barber + Admin
+///////////////////////////////////////////
+// GET ALL QUEUE
+// Return all queue entries
+// Accessible by barber and admin only
+// Requires valid JWT authentication
+///////////////////////////////////////////
 router.get(
   "/",
   authMiddleware,
@@ -20,33 +30,45 @@ router.get(
   QueueController.getAll,
 );
 
-// GET TODAY'S QUEUE BY SHOP
-// Barber + Admin
+///////////////////////////////////////////
+// GET CUSTOMER ACTIVE QUEUE
+// Return the customer's active queue entry
+// Public route without authentication
+///////////////////////////////////////////
+router.get("/customer/:customerId", QueueController.getActiveByCustomerId);
+
+///////////////////////////////////////////
+// GET QUEUE BY BARBER
+// Return active queue entries for a barber
+// Accessible by barber and admin only
+// Requires valid JWT authentication
+///////////////////////////////////////////
 router.get(
-  "/shop/:shopId",
+  "/barber/:barberId",
   authMiddleware,
   authorize("barber", "admin"),
-  QueueController.getByShopId,
+  QueueController.getByBarberId,
 );
 
-// GET NEXT WAITING CUSTOMER
-// Barber + Admin
+///////////////////////////////////////////
+// GET NEXT CUSTOMER
+// Return the next waiting customer
+// Accessible by barber and admin only
+// Requires valid JWT authentication
+///////////////////////////////////////////
 router.get(
-  "/shop/:shopId/next",
+  "/barber/:barberId/next",
   authMiddleware,
   authorize("barber", "admin"),
   QueueController.getNextWaiting,
 );
 
-// GET CUSTOMER ACTIVE QUEUE
-// Public - Customer can check using customerId + shopId
-router.get(
-  "/customer/:customerId/shop/:shopId",
-  QueueController.getActiveByCustomerId,
-);
-
-// GET QUEUE ENTRY BY ID
-// Barber + Admin
+///////////////////////////////////////////
+// GET QUEUE BY ID
+// Return a specific queue entry by id
+// Accessible by barber and admin only
+// Requires valid JWT authentication
+///////////////////////////////////////////
 router.get(
   "/:id",
   authMiddleware,
@@ -54,8 +76,12 @@ router.get(
   QueueController.getById,
 );
 
-// UPDATE QUEUE ENTRY
-// Barber + Admin
+///////////////////////////////////////////
+// UPDATE QUEUE
+// Update queue status or assigned barber
+// Validation runs before the controller
+// Accessible by barber and admin only
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -64,8 +90,12 @@ router.put(
   QueueController.update,
 );
 
-// DELETE QUEUE ENTRY
-// Barber + Admin
+///////////////////////////////////////////
+// DELETE QUEUE
+// Permanently remove a queue entry
+// Accessible by barber and admin only
+// Requires valid JWT authentication
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,
