@@ -2,22 +2,27 @@ import { Request, Response } from "express";
 import { QueueService } from "./queue.service";
 
 export class QueueController {
+  ///////////////////////////////////////////
   // JOIN QUEUE
+  // Receive customer and barber data
+  // Add customer to queue
+  ///////////////////////////////////////////
   static async joinQueue(req: Request, res: Response) {
-    const { customer_id, shop_id, barber_id, booking_id } = req.body;
+    const { customer_id, barber_id } = req.body;
 
     try {
       const queueEntry = await QueueService.joinQueue({
         customer_id,
-        shop_id,
         barber_id,
-        booking_id,
       });
 
       return res.status(201).json(queueEntry);
     } catch (error) {
       console.error("Controller error (join queue):", error);
 
+      ///////////////////////////////////////////
+      // Customer already has an active queue entry
+      ///////////////////////////////////////////
       if (
         error instanceof Error &&
         error.message === "CUSTOMER_ALREADY_IN_QUEUE"
@@ -33,7 +38,10 @@ export class QueueController {
     }
   }
 
-  // GET ALL QUEUE ENTRIES
+  ///////////////////////////////////////////
+  // GET ALL QUEUE
+  // Return all queue entries
+  ///////////////////////////////////////////
   static async getAll(req: Request, res: Response) {
     try {
       const queue = await QueueService.getAll();
@@ -48,7 +56,11 @@ export class QueueController {
     }
   }
 
-  // GET QUEUE ENTRY BY ID
+  ///////////////////////////////////////////
+  // GET QUEUE BY ID
+  // Validate queue id from params
+  // Return queue entry if exists
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const queueId = Number(req.params.id);
 
@@ -77,93 +89,104 @@ export class QueueController {
     }
   }
 
-  // GET TODAY'S QUEUE BY SHOP
-  static async getByShopId(req: Request, res: Response) {
-    const shopId = Number(req.params.shopId);
+  ///////////////////////////////////////////
+  // GET QUEUE BY BARBER
+  // Validate barber id from params
+  // Return active queue entries for barber
+  ///////////////////////////////////////////
+  static async getByBarberId(req: Request, res: Response) {
+    const barberId = Number(req.params.barberId);
 
-    if (isNaN(shopId)) {
+    if (isNaN(barberId)) {
       return res.status(400).json({
-        message: "Invalid shop id",
+        message: "Invalid barber id",
       });
     }
 
     try {
-      const queue = await QueueService.getByShopId(shopId);
+      const queue = await QueueService.getByBarberId(barberId);
 
       return res.status(200).json(queue);
     } catch (error) {
-      console.error("Controller error (get shop queue):", error);
+      console.error("Controller error (get barber queue):", error);
 
       return res.status(500).json({
-        message: "Failed to get shop queue",
+        message: "Failed to get barber queue",
       });
     }
   }
 
+  ///////////////////////////////////////////
   // GET CUSTOMER ACTIVE QUEUE
+  // Validate customer id from params
+  // Return customer's active queue entry
+  ///////////////////////////////////////////
   static async getActiveByCustomerId(req: Request, res: Response) {
     const customerId = Number(req.params.customerId);
 
-    const shopId = Number(req.params.shopId);
-
-    if (isNaN(customerId) || isNaN(shopId)) {
+    if (isNaN(customerId)) {
       return res.status(400).json({
-        message: "Invalid customer id or shop id",
+        message: "Invalid customer id",
       });
     }
 
     try {
-      const queueEntry = await QueueService.getActiveByCustomerId(
-        customerId,
-        shopId,
-      );
+      const queueEntry = await QueueService.getActiveByCustomerId(customerId);
 
       if (!queueEntry) {
         return res.status(404).json({
-          message: "Customer is not currently in the queue",
+          message: "Customer is not currently in queue",
         });
       }
 
       return res.status(200).json(queueEntry);
     } catch (error) {
-      console.error("Controller error (get customer queue):", error);
+      console.error("Controller error (customer queue):", error);
 
       return res.status(500).json({
-        message: "Failed to get customer queue entry",
+        message: "Failed to get customer queue",
       });
     }
   }
 
+  ///////////////////////////////////////////
   // GET NEXT WAITING CUSTOMER
+  // Validate barber id from params
+  // Return first waiting customer
+  ///////////////////////////////////////////
   static async getNextWaiting(req: Request, res: Response) {
-    const shopId = Number(req.params.shopId);
+    const barberId = Number(req.params.barberId);
 
-    if (isNaN(shopId)) {
+    if (isNaN(barberId)) {
       return res.status(400).json({
-        message: "Invalid shop id",
+        message: "Invalid barber id",
       });
     }
 
     try {
-      const queueEntry = await QueueService.getNextWaiting(shopId);
+      const queueEntry = await QueueService.getNextWaiting(barberId);
 
       if (!queueEntry) {
         return res.status(404).json({
-          message: "No customers are currently waiting",
+          message: "No customers are waiting",
         });
       }
 
       return res.status(200).json(queueEntry);
     } catch (error) {
-      console.error("Controller error (get next customer):", error);
+      console.error("Controller error (next customer):", error);
 
       return res.status(500).json({
-        message: "Failed to get next waiting customer",
+        message: "Failed to get next customer",
       });
     }
   }
 
-  // UPDATE QUEUE ENTRY
+  ///////////////////////////////////////////
+  // UPDATE QUEUE
+  // Validate queue id and update queue data
+  // Return updated queue entry
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const queueId = Number(req.params.id);
 
@@ -192,12 +215,16 @@ export class QueueController {
       console.error("Controller error (update queue):", error);
 
       return res.status(500).json({
-        message: "Failed to update queue entry",
+        message: "Failed to update queue",
       });
     }
   }
 
-  // DELETE QUEUE ENTRY
+  ///////////////////////////////////////////
+  // DELETE QUEUE
+  // Validate queue id and remove queue entry
+  // Return deletion result
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const queueId = Number(req.params.id);
 

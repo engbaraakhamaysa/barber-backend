@@ -10,7 +10,11 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
-// CREATE BARBER
+///////////////////////////////////////////
+// CREATE BARBER ROUTE
+// Protected route for admin only
+// Validate data before creating barber
+///////////////////////////////////////////
 router.post(
   "/",
   authMiddleware,
@@ -19,13 +23,25 @@ router.post(
   BarberController.create,
 );
 
-// GET BARBERS BY SHOP ID
+///////////////////////////////////////////
+// GET BARBERS BY SHOP ID ROUTE
+// Get all barbers assigned to a shop
+// Requires valid authentication
+///////////////////////////////////////////
 router.get("/shop/:shopId", authMiddleware, BarberController.getByShopId);
 
-// GET BARBER BY ID
+///////////////////////////////////////////
+// GET BARBER BY ID ROUTE
+// Get single barber by id
+// Requires valid authentication
+///////////////////////////////////////////
 router.get("/:id", authMiddleware, BarberController.getById);
 
-// UPDATE BARBER
+///////////////////////////////////////////
+// UPDATE BARBER ROUTE
+// Update barber information
+// Validate provided fields before update
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -34,7 +50,11 @@ router.put(
   BarberController.update,
 );
 
-// DELETE BARBER
+///////////////////////////////////////////
+// DELETE BARBER ROUTE
+// Delete barber by id
+// Accessible by admin only
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,

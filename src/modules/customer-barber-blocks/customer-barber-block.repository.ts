@@ -5,7 +5,11 @@ import {
 } from "./customer-barber-block.types";
 
 export class CustomerBarberBlockRepository {
-  // CREATE BLOCK
+  ///////////////////////////////////////////
+  // CREATE CUSTOMER-BARBER BLOCK
+  // Create a new block between a customer and a barber
+  // Stores the customer, barber, and optional blocking reason
+  ///////////////////////////////////////////
   static async create(
     data: CreateCustomerBarberBlockInput,
   ): Promise<CustomerBarberBlock> {
@@ -28,7 +32,10 @@ export class CustomerBarberBlockRepository {
     return result.rows[0];
   }
 
-  // GET BLOCK BY ID
+  ///////////////////////////////////////////
+  // GET CUSTOMER-BARBER BLOCK BY ID
+  // Return a specific customer-barber block by its ID
+  ///////////////////////////////////////////
   static async getById(id: number): Promise<CustomerBarberBlock | undefined> {
     const sql = `
       SELECT *
@@ -41,7 +48,11 @@ export class CustomerBarberBlockRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // GET ACTIVE BLOCKS BY BARBER
+  // Return all active customer blocks for a specific barber
+  // Results are ordered by the most recent block first
+  ///////////////////////////////////////////
   static async getActiveByBarberId(
     barberId: number,
   ): Promise<CustomerBarberBlock[]> {
@@ -58,7 +69,11 @@ export class CustomerBarberBlockRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // GET ACTIVE BLOCKS BY CUSTOMER
+  // Return all active barber blocks for a specific customer
+  // Results are ordered by the most recent block first
+  ///////////////////////////////////////////
   static async getActiveByCustomerId(
     customerId: number,
   ): Promise<CustomerBarberBlock[]> {
@@ -75,7 +90,11 @@ export class CustomerBarberBlockRepository {
     return result.rows;
   }
 
-  // CHECK ACTIVE BLOCK
+  ///////////////////////////////////////////
+  // CHECK ACTIVE CUSTOMER-BARBER BLOCK
+  // Check whether a customer is currently blocked by a specific barber
+  // Return the active block record when one exists
+  ///////////////////////////////////////////
   static async getActiveBlock(
     customerId: number,
     barberId: number,
@@ -94,7 +113,11 @@ export class CustomerBarberBlockRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // UNBLOCK CUSTOMER
+  // Deactivate an active customer-barber block
+  // Store the unblocked timestamp and update timestamp
+  ///////////////////////////////////////////
   static async unblock(id: number): Promise<CustomerBarberBlock | undefined> {
     const sql = `
       UPDATE customer_barber_blocks
@@ -112,7 +135,10 @@ export class CustomerBarberBlockRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // DELETE BLOCK RECORD
+  // Permanently delete a customer-barber block record by ID
+  ///////////////////////////////////////////
   static async deleteById(
     id: number,
   ): Promise<CustomerBarberBlock | undefined> {

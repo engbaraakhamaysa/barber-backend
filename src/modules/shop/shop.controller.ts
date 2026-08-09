@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { ShopService } from "./shop.service";
 
 export class ShopController {
+  ///////////////////////////////////////////
   // CREATE SHOP
+  // Receive shop data and call service
+  // Return created shop response
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { name, location } = req.body;
 
@@ -22,7 +26,11 @@ export class ShopController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET ALL SHOPS
+  // Get all shops from service
+  // Return shop list
+  ///////////////////////////////////////////
   static async getAll(req: Request, res: Response) {
     try {
       const shops = await ShopService.getAll();
@@ -37,7 +45,11 @@ export class ShopController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET SHOP BY ID
+  // Validate shop id from params
+  // Return shop data if exists
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const shopId = Number(req.params.id);
 
@@ -66,7 +78,11 @@ export class ShopController {
     }
   }
 
+  ///////////////////////////////////////////
   // UPDATE SHOP
+  // Validate id and update provided fields
+  // Return updated shop response
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const shopId = Number(req.params.id);
 
@@ -101,7 +117,11 @@ export class ShopController {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE SHOP
+  // Validate id and remove shop
+  // Return deletion result
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const shopId = Number(req.params.id);
 

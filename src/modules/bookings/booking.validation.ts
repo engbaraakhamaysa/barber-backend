@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { BookingStatus } from "./booking.types";
 
+// List of valid booking statuses
+// Used to validate the booking status before updating
 const validBookingStatuses: BookingStatus[] = [
   "pending",
   "confirmed",
@@ -9,6 +11,12 @@ const validBookingStatuses: BookingStatus[] = [
   "no_show",
 ];
 
+///////////////////////////////////////////
+// CREATE BOOKING VALIDATION
+// Validate customer_id and slot_id
+// Both values must be positive integers
+// Continue to the controller when validation succeeds
+///////////////////////////////////////////
 export function validateCreateBooking(
   req: Request,
   res: Response,
@@ -41,6 +49,12 @@ export function validateCreateBooking(
   next();
 }
 
+///////////////////////////////////////////
+// UPDATE BOOKING VALIDATION
+// Validate the booking status when provided
+// Status must match one of the supported booking statuses
+// Continue to the controller when validation succeeds
+///////////////////////////////////////////
 export function validateUpdateBooking(
   req: Request,
   res: Response,

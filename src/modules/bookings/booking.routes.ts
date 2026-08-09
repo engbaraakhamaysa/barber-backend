@@ -10,13 +10,21 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
+///////////////////////////////////////////
 // CREATE BOOKING
-// Public
-// Customer can book without account
+// Create a new booking for a customer
+// Public route without authentication
+// Customer can book without creating an account
+// Validate booking data before creation
+///////////////////////////////////////////
 router.post("/", validateCreateBooking, BookingController.create);
 
+///////////////////////////////////////////
 // GET ALL BOOKINGS
-// Barber + Admin
+// Return all bookings in the system
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/",
   authMiddleware,
@@ -24,8 +32,12 @@ router.get(
   BookingController.getAll,
 );
 
+///////////////////////////////////////////
 // GET BOOKINGS BY CUSTOMER
-// Barber + Admin
+// Return all bookings belonging to a specific customer
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/customer/:customerId",
   authMiddleware,
@@ -33,8 +45,12 @@ router.get(
   BookingController.getByCustomerId,
 );
 
+///////////////////////////////////////////
 // GET BOOKINGS BY BARBER
-// Barber + Admin
+// Return all bookings assigned to a specific barber
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/barber/:barberId",
   authMiddleware,
@@ -42,8 +58,12 @@ router.get(
   BookingController.getByBarberId,
 );
 
+///////////////////////////////////////////
 // GET BOOKING BY ID
-// Barber + Admin
+// Return a specific booking by ID
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.get(
   "/:id",
   authMiddleware,
@@ -51,8 +71,13 @@ router.get(
   BookingController.getById,
 );
 
+///////////////////////////////////////////
 // UPDATE BOOKING STATUS
-// Barber + Admin
+// Update the status of a specific booking
+// Accessible by barber and admin users only
+// Validate booking status before updating
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -61,8 +86,12 @@ router.put(
   BookingController.update,
 );
 
+///////////////////////////////////////////
 // DELETE BOOKING
-// Barber + Admin
+// Permanently delete a specific booking by ID
+// Accessible by barber and admin users only
+// Requires authentication and role authorization
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,

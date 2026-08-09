@@ -2,7 +2,12 @@ import { Request, Response } from "express";
 import { BookingService } from "./booking.service";
 
 export class BookingController {
+  ///////////////////////////////////////////
   // CREATE BOOKING
+  // Create a new booking for a customer
+  // Handle missing slot, unavailable slot,
+  // inactive barber, and missing customer errors
+  ///////////////////////////////////////////
   static async create(req: Request, res: Response) {
     const { customer_id, slot_id } = req.body;
 
@@ -55,7 +60,10 @@ export class BookingController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET ALL BOOKINGS
+  // Return all bookings in the system
+  ///////////////////////////////////////////
   static async getAll(req: Request, res: Response) {
     try {
       const bookings = await BookingService.getAll();
@@ -70,7 +78,10 @@ export class BookingController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET BOOKING BY ID
+  // Return a specific booking by ID
+  ///////////////////////////////////////////
   static async getById(req: Request, res: Response) {
     const bookingId = Number(req.params.id);
 
@@ -99,7 +110,10 @@ export class BookingController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET BOOKINGS BY CUSTOMER
+  // Return all bookings belonging to a customer
+  ///////////////////////////////////////////
   static async getByCustomerId(req: Request, res: Response) {
     const customerId = Number(req.params.customerId);
 
@@ -122,7 +136,10 @@ export class BookingController {
     }
   }
 
+  ///////////////////////////////////////////
   // GET BOOKINGS BY BARBER
+  // Return all bookings assigned to a barber
+  ///////////////////////////////////////////
   static async getByBarberId(req: Request, res: Response) {
     const barberId = Number(req.params.barberId);
 
@@ -145,7 +162,10 @@ export class BookingController {
     }
   }
 
+  ///////////////////////////////////////////
   // UPDATE BOOKING STATUS
+  // Update the status of an existing booking
+  ///////////////////////////////////////////
   static async update(req: Request, res: Response) {
     const bookingId = Number(req.params.id);
 
@@ -178,7 +198,10 @@ export class BookingController {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE BOOKING
+  // Permanently delete a booking by ID
+  ///////////////////////////////////////////
   static async deleteById(req: Request, res: Response) {
     const bookingId = Number(req.params.id);
 

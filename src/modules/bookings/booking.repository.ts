@@ -8,7 +8,13 @@ import {
 } from "./booking.types";
 
 export class BookingRepository {
+  ///////////////////////////////////////////
   // CREATE BOOKING
+  // Create a booking for a customer
+  // Validates the booking slot exists
+  // Validates the customer exists
+  // Uses a transaction to ensure data consistency
+  ///////////////////////////////////////////
   static async create(data: CreateBookingInput): Promise<Booking> {
     const client = await pool.connect();
 
@@ -69,7 +75,12 @@ export class BookingRepository {
     }
   }
 
+  ///////////////////////////////////////////
   // GET ALL BOOKINGS
+  // Return all bookings with customer,
+  // barber, and booking slot information
+  // Results are ordered by slot time
+  ///////////////////////////////////////////
   static async getAll(): Promise<BookingWithDetails[]> {
     const result = await pool.query(
       `
@@ -119,7 +130,11 @@ export class BookingRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // GET BOOKING BY ID
+  // Return a specific booking by ID
+  // Includes customer, barber, and slot information
+  ///////////////////////////////////////////
   static async getById(id: number): Promise<BookingWithDetails | undefined> {
     const result = await pool.query(
       `
@@ -170,7 +185,11 @@ export class BookingRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // GET BOOKINGS BY CUSTOMER
+  // Return all bookings belonging to a customer
+  // Results are ordered by creation date
+  ///////////////////////////////////////////
   static async getByCustomerId(
     customerId: number,
   ): Promise<BookingWithDetails[]> {
@@ -208,7 +227,11 @@ export class BookingRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // GET BOOKINGS BY BARBER
+  // Return all bookings assigned to a barber
+  // Results are ordered by creation date
+  ///////////////////////////////////////////
   static async getByBarberId(barberId: number): Promise<BookingWithDetails[]> {
     const result = await pool.query(
       `
@@ -244,7 +267,11 @@ export class BookingRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // UPDATE BOOKING
+  // Update the booking status
+  // Automatically update the modification timestamp
+  ///////////////////////////////////////////
   static async update(
     id: number,
     data: UpdateBookingInput,
@@ -268,7 +295,10 @@ export class BookingRepository {
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // DELETE BOOKING
+  // Permanently delete a booking by ID
+  ///////////////////////////////////////////
   static async deleteById(id: number): Promise<Booking | undefined> {
     const result = await pool.query(
       `

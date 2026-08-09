@@ -7,8 +7,11 @@ import {
 } from "./barber.types";
 
 export class BarberRepository {
+  ///////////////////////////////////////////
   // CREATE BARBER
-  // Create user + barber inside transaction
+  // Create user and barber inside a transaction
+  // Return barber with user information
+  ///////////////////////////////////////////
   static async create(data: CreateBarberInput): Promise<BarberWithUser> {
     const client = await pool.connect();
 
@@ -63,7 +66,11 @@ export class BarberRepository {
     }
   }
 
+  ///////////////////////////////////////////
   // GET BARBER BY ID
+  // Find barber using unique barber id
+  // Return barber with user information
+  ///////////////////////////////////////////
   static async getById(id: number): Promise<BarberWithUser | undefined> {
     const sql = `
       SELECT
@@ -87,7 +94,11 @@ export class BarberRepository {
     return result.rows[0];
   }
 
-  // GET ALL BARBERS BY SHOP
+  ///////////////////////////////////////////
+  // GET BARBERS BY SHOP
+  // Return all barbers assigned to a shop
+  // Include linked user information
+  ///////////////////////////////////////////
   static async getByShopId(shopId: number): Promise<BarberWithUser[]> {
     const sql = `
       SELECT
@@ -112,7 +123,11 @@ export class BarberRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // UPDATE BARBER
+  // Update barber and linked user information
+  // Use transaction for related database updates
+  ///////////////////////////////////////////
   static async update(
     id: number,
     data: UpdateBarberInput,
@@ -178,8 +193,11 @@ export class BarberRepository {
     }
   }
 
+  ///////////////////////////////////////////
   // DELETE BARBER
-  // DELETE BARBER
+  // Delete barber and linked user
+  // Use transaction to keep related data consistent
+  ///////////////////////////////////////////
   static async deleteById(id: number): Promise<Barber | undefined> {
     const client = await pool.connect();
 
@@ -189,10 +207,10 @@ export class BarberRepository {
       // Get linked user id
       const barberResult = await client.query(
         `
-        SELECT user_id
-        FROM barbers
-        WHERE id = $1
-      `,
+          SELECT user_id
+          FROM barbers
+          WHERE id = $1
+        `,
         [id],
       );
 
@@ -206,19 +224,19 @@ export class BarberRepository {
       // Delete barber
       const deletedBarber = await client.query(
         `
-        DELETE FROM barbers
-        WHERE id = $1
-        RETURNING *
-      `,
+          DELETE FROM barbers
+          WHERE id = $1
+          RETURNING *
+        `,
         [id],
       );
 
       // Delete linked user
       await client.query(
         `
-        DELETE FROM users
-        WHERE id = $1
-      `,
+          DELETE FROM users
+          WHERE id = $1
+        `,
         [userId],
       );
 

@@ -10,12 +10,19 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
+///////////////////////////////////////////
 // CREATE CUSTOMER
-// Public
+// Create a new customer account
+// Public route without authentication
+// Validate customer data before creation
+///////////////////////////////////////////
 router.post("/", validateCreateCustomer, CustomerController.create);
 
+///////////////////////////////////////////
 // GET ALL CUSTOMERS
-// Barber + Admin
+// Return all customers in the system
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.get(
   "/",
   authMiddleware,
@@ -23,8 +30,11 @@ router.get(
   CustomerController.getAll,
 );
 
+///////////////////////////////////////////
 // GET CUSTOMER BY ID
-// Barber + Admin
+// Return a specific customer by ID
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.get(
   "/:id",
   authMiddleware,
@@ -32,8 +42,12 @@ router.get(
   CustomerController.getById,
 );
 
+///////////////////////////////////////////
 // UPDATE CUSTOMER
-// Barber + Admin
+// Update customer information
+// Validate provided fields before updating
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.put(
   "/:id",
   authMiddleware,
@@ -42,8 +56,11 @@ router.put(
   CustomerController.update,
 );
 
+///////////////////////////////////////////
 // DELETE CUSTOMER
-// Barber + Admin
+// Permanently delete a customer by ID
+// Accessible by barber and admin users only
+///////////////////////////////////////////
 router.delete(
   "/:id",
   authMiddleware,

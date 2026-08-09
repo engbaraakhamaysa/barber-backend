@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
+///////////////////////////////////////////
+// CREATE CUSTOMER-BARBER BLOCK VALIDATION
+// Validate customer_id, barber_id, and optional reason
+// Customer and barber IDs must be positive integers
+// Reason must be a non-empty string with a maximum of 500 characters
+///////////////////////////////////////////
 export function validateCreateCustomerBarberBlock(
   req: Request,
   res: Response,

@@ -2,44 +2,36 @@ import pool from "../../config/db";
 import { QueueEntry, JoinQueueInput, UpdateQueueInput } from "./queue.types";
 
 export class QueueRepository {
+  ///////////////////////////////////////////
   // JOIN QUEUE
+  // Add customer to barber queue
+  // Set initial queue status to waiting
+  ///////////////////////////////////////////
   static async joinQueue(data: JoinQueueInput): Promise<QueueEntry> {
     const sql = `
       INSERT INTO queue_entries (
-        customer_id,
-        shop_id,
         barber_id,
-        booking_id,
-        queue_number,
+        customer_id,
         status
       )
       VALUES (
         $1,
         $2,
-        $3,
-        $4,
-        (
-          SELECT COALESCE(MAX(queue_number), 0) + 1
-          FROM queue_entries
-          WHERE shop_id = $2
-            AND DATE(joined_at) = CURRENT_DATE
-        ),
         'waiting'
       )
       RETURNING *
     `;
 
-    const result = await pool.query(sql, [
-      data.customer_id,
-      data.shop_id,
-      data.barber_id ?? null,
-      data.booking_id ?? null,
-    ]);
+    const result = await pool.query(sql, [data.barber_id, data.customer_id]);
 
     return result.rows[0];
   }
 
-  // GET ALL QUEUE ENTRIES
+  ///////////////////////////////////////////
+  // GET ALL QUEUE
+  // Return all queue entries
+  // Order entries by join time
+  ///////////////////////////////////////////
   static async getAll(): Promise<QueueEntry[]> {
     const sql = `
       SELECT *
@@ -52,7 +44,10 @@ export class QueueRepository {
     return result.rows;
   }
 
+  ///////////////////////////////////////////
   // GET QUEUE BY ID
+  // Find queue entry using unique queue id
+  ///////////////////////////////////////////
   static async getById(id: number): Promise<QueueEntry | undefined> {
     const sql = `
       SELECT *
@@ -65,61 +60,82 @@ export class QueueRepository {
     return result.rows[0];
   }
 
-  // GET QUEUE BY SHOP
-  static async getByShopId(shopId: number): Promise<QueueEntry[]> {
+  ///////////////////////////////////////////
+  // GET QUEUE BY BARBER
+  // Return active queue entries for a barber
+  // Include waiting, called, and in-service customers
+  ///////////////////////////////////////////
+  static async getByBarberId(barberId: number): Promise<QueueEntry[]> {
     const sql = `
       SELECT *
       FROM queue_entries
-      WHERE shop_id = $1
-        AND DATE(joined_at) = CURRENT_DATE
-        AND status IN ('waiting', 'in_service')
-      ORDER BY queue_number ASC
+      WHERE barber_id = $1
+      AND status IN (
+        'waiting',
+        'called',
+        'in_service'
+      )
+      ORDER BY joined_at ASC
     `;
 
-    const result = await pool.query(sql, [shopId]);
+    const result = await pool.query(sql, [barberId]);
 
     return result.rows;
   }
 
-  // GET CUSTOMER QUEUE ENTRY
+  ///////////////////////////////////////////
+  // GET ACTIVE CUSTOMER QUEUE
+  // Find customer's current active queue entry
+  // Return the latest active queue entry
+  ///////////////////////////////////////////
   static async getActiveByCustomerId(
     customerId: number,
-    shopId: number,
   ): Promise<QueueEntry | undefined> {
     const sql = `
       SELECT *
       FROM queue_entries
       WHERE customer_id = $1
-        AND shop_id = $2
-        AND DATE(joined_at) = CURRENT_DATE
-        AND status IN ('waiting', 'in_service')
+      AND status IN (
+        'waiting',
+        'called',
+        'in_service'
+      )
       ORDER BY joined_at DESC
       LIMIT 1
     `;
 
-    const result = await pool.query(sql, [customerId, shopId]);
+    const result = await pool.query(sql, [customerId]);
 
     return result.rows[0];
   }
 
+  ///////////////////////////////////////////
   // GET NEXT CUSTOMER
-  static async getNextWaiting(shopId: number): Promise<QueueEntry | undefined> {
+  // Find the first waiting customer for a barber
+  // Return the customer at the front of the queue
+  ///////////////////////////////////////////
+  static async getNextWaiting(
+    barberId: number,
+  ): Promise<QueueEntry | undefined> {
     const sql = `
       SELECT *
       FROM queue_entries
-      WHERE shop_id = $1
-        AND DATE(joined_at) = CURRENT_DATE
-        AND status = 'waiting'
-      ORDER BY queue_number ASC
+      WHERE barber_id = $1
+      AND status = 'waiting'
+      ORDER BY joined_at ASC
       LIMIT 1
     `;
 
-    const result = await pool.query(sql, [shopId]);
+    const result = await pool.query(sql, [barberId]);
 
     return result.rows[0];
   }
 
-  // UPDATE QUEUE ENTRY
+  ///////////////////////////////////////////
+  // UPDATE QUEUE
+  // Update queue status or assigned barber
+  // Set timestamps based on queue status changes
+  ///////////////////////////////////////////
   static async update(
     id: number,
     data: UpdateQueueInput,
@@ -128,12 +144,22 @@ export class QueueRepository {
       UPDATE queue_entries
       SET
         status = COALESCE($1, status),
-        barber_id = COALESCE($2, barber_id),
-        updated_at = NOW(),
+
+        barber_id = COALESCE(
+          $2,
+          barber_id
+        ),
+
+        called_at = CASE
+          WHEN $1 = 'called'
+          AND called_at IS NULL
+          THEN NOW()
+          ELSE called_at
+        END,
 
         started_at = CASE
           WHEN $1 = 'in_service'
-            AND started_at IS NULL
+          AND started_at IS NULL
           THEN NOW()
           ELSE started_at
         END,
@@ -142,9 +168,16 @@ export class QueueRepository {
           WHEN $1 = 'completed'
           THEN NOW()
           ELSE completed_at
+        END,
+
+        cancelled_at = CASE
+          WHEN $1 = 'cancelled'
+          THEN NOW()
+          ELSE cancelled_at
         END
 
       WHERE id = $3
+
       RETURNING *
     `;
 
@@ -157,7 +190,10 @@ export class QueueRepository {
     return result.rows[0];
   }
 
-  // DELETE QUEUE ENTRY
+  ///////////////////////////////////////////
+  // DELETE QUEUE
+  // Remove queue entry permanently from database
+  ///////////////////////////////////////////
   static async deleteById(id: number): Promise<QueueEntry | undefined> {
     const sql = `
       DELETE FROM queue_entries
