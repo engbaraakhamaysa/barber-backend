@@ -63,20 +63,25 @@ export class QueueRepository {
   ///////////////////////////////////////////
   // GET QUEUE BY BARBER
   // Return active queue entries for a barber
+  // Include customer name
   // Include waiting, called, and in-service customers
   ///////////////////////////////////////////
   static async getByBarberId(barberId: number): Promise<QueueEntry[]> {
     const sql = `
-      SELECT *
-      FROM queue_entries
-      WHERE barber_id = $1
-      AND status IN (
-        'waiting',
-        'called',
-        'in_service'
-      )
-      ORDER BY joined_at ASC
-    `;
+    SELECT
+      queue_entries.*,
+      customers.name AS customer_name
+    FROM queue_entries
+    JOIN customers
+      ON customers.id = queue_entries.customer_id
+    WHERE queue_entries.barber_id = $1
+    AND queue_entries.status IN (
+      'waiting',
+      'called',
+      'in_service'
+    )
+    ORDER BY queue_entries.joined_at ASC
+  `;
 
     const result = await pool.query(sql, [barberId]);
 
