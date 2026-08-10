@@ -13,12 +13,14 @@ export type QueueStatus =
 ///////////////////////////////////////////
 // QUEUE ENTRY MODEL
 // Represents a customer's queue entry
-// Includes queue status and lifecycle timestamps
+// Includes customer information,
+// queue status, and lifecycle timestamps
 ///////////////////////////////////////////
 export interface QueueEntry {
   id: number;
   barber_id: number;
   customer_id: number;
+  customer_name: string;
   status: QueueStatus;
   joined_at: string;
   called_at: string | null;
