@@ -1,12 +1,12 @@
 import pool from "../../config/db";
+
 import { QueueEntry, JoinQueueInput, UpdateQueueInput } from "./queue.types";
 
 export class QueueRepository {
   ///////////////////////////////////////////
   // JOIN QUEUE
-  // Add customer to barber queue
-  // Set initial queue status to waiting
   ///////////////////////////////////////////
+
   static async joinQueue(data: JoinQueueInput): Promise<QueueEntry> {
     const sql = `
       INSERT INTO queue_entries (
@@ -29,9 +29,8 @@ export class QueueRepository {
 
   ///////////////////////////////////////////
   // GET ALL QUEUE
-  // Return all queue entries
-  // Order entries by join time
   ///////////////////////////////////////////
+
   static async getAll(): Promise<QueueEntry[]> {
     const sql = `
       SELECT *
@@ -46,8 +45,8 @@ export class QueueRepository {
 
   ///////////////////////////////////////////
   // GET QUEUE BY ID
-  // Find queue entry using unique queue id
   ///////////////////////////////////////////
+
   static async getById(id: number): Promise<QueueEntry | undefined> {
     const sql = `
       SELECT *
@@ -62,26 +61,24 @@ export class QueueRepository {
 
   ///////////////////////////////////////////
   // GET QUEUE BY BARBER
-  // Return active queue entries for a barber
-  // Include customer name
-  // Include waiting, called, and in-service customers
   ///////////////////////////////////////////
+
   static async getByBarberId(barberId: number): Promise<QueueEntry[]> {
     const sql = `
-    SELECT
-      queue_entries.*,
-      customers.name AS customer_name
-    FROM queue_entries
-    JOIN customers
-      ON customers.id = queue_entries.customer_id
-    WHERE queue_entries.barber_id = $1
-    AND queue_entries.status IN (
-      'waiting',
-      'called',
-      'in_service'
-    )
-    ORDER BY queue_entries.joined_at ASC
-  `;
+      SELECT
+        queue_entries.*,
+        customers.name AS customer_name
+      FROM queue_entries
+      JOIN customers
+        ON customers.id = queue_entries.customer_id
+      WHERE queue_entries.barber_id = $1
+        AND queue_entries.status IN (
+          'waiting',
+          'called',
+          'in_service'
+        )
+      ORDER BY queue_entries.joined_at ASC
+    `;
 
     const result = await pool.query(sql, [barberId]);
 
@@ -89,10 +86,9 @@ export class QueueRepository {
   }
 
   ///////////////////////////////////////////
-  // GET ACTIVE CUSTOMER QUEUE
-  // Find customer's current active queue entry
-  // Return the latest active queue entry
+  // GET CUSTOMER ACTIVE QUEUE
   ///////////////////////////////////////////
+
   static async getActiveByCustomerId(
     customerId: number,
   ): Promise<QueueEntry | undefined> {
@@ -100,11 +96,11 @@ export class QueueRepository {
       SELECT *
       FROM queue_entries
       WHERE customer_id = $1
-      AND status IN (
-        'waiting',
-        'called',
-        'in_service'
-      )
+        AND status IN (
+          'waiting',
+          'called',
+          'in_service'
+        )
       ORDER BY joined_at DESC
       LIMIT 1
     `;
@@ -115,10 +111,30 @@ export class QueueRepository {
   }
 
   ///////////////////////////////////////////
-  // GET NEXT CUSTOMER
-  // Find the first waiting customer for a barber
-  // Return the customer at the front of the queue
+  // GET CURRENT IN-SERVICE CUSTOMER
   ///////////////////////////////////////////
+
+  static async getCurrentInService(
+    barberId: number,
+  ): Promise<QueueEntry | undefined> {
+    const sql = `
+      SELECT *
+      FROM queue_entries
+      WHERE barber_id = $1
+        AND status = 'in_service'
+      ORDER BY started_at ASC
+      LIMIT 1
+    `;
+
+    const result = await pool.query(sql, [barberId]);
+
+    return result.rows[0];
+  }
+
+  ///////////////////////////////////////////
+  // GET NEXT WAITING CUSTOMER
+  ///////////////////////////////////////////
+
   static async getNextWaiting(
     barberId: number,
   ): Promise<QueueEntry | undefined> {
@@ -126,7 +142,7 @@ export class QueueRepository {
       SELECT *
       FROM queue_entries
       WHERE barber_id = $1
-      AND status = 'waiting'
+        AND status = 'waiting'
       ORDER BY joined_at ASC
       LIMIT 1
     `;
@@ -137,10 +153,113 @@ export class QueueRepository {
   }
 
   ///////////////////////////////////////////
-  // UPDATE QUEUE
-  // Update queue status or assigned barber
-  // Set timestamps based on queue status changes
+  // COMPLETE CURRENT CUSTOMER
+  // Start next waiting customer
   ///////////////////////////////////////////
+
+  static async completeCurrentCustomer(
+    queueId: number,
+  ): Promise<QueueEntry | undefined> {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      ///////////////////////////////////////////
+      // GET CURRENT CUSTOMER
+      ///////////////////////////////////////////
+
+      const currentResult = await client.query(
+        `
+          SELECT *
+          FROM queue_entries
+          WHERE id = $1
+            AND status = 'in_service'
+          FOR UPDATE
+        `,
+        [queueId],
+      );
+
+      const currentCustomer = currentResult.rows[0];
+
+      if (!currentCustomer) {
+        await client.query("ROLLBACK");
+
+        return undefined;
+      }
+
+      ///////////////////////////////////////////
+      // COMPLETE CURRENT CUSTOMER
+      ///////////////////////////////////////////
+
+      await client.query(
+        `
+          UPDATE queue_entries
+          SET
+            status = 'completed',
+            completed_at = NOW()
+          WHERE id = $1
+        `,
+        [queueId],
+      );
+
+      ///////////////////////////////////////////
+      // GET NEXT WAITING CUSTOMER
+      ///////////////////////////////////////////
+
+      const nextResult = await client.query(
+        `
+          SELECT *
+          FROM queue_entries
+          WHERE barber_id = $1
+            AND status = 'waiting'
+          ORDER BY joined_at ASC
+          LIMIT 1
+          FOR UPDATE
+        `,
+        [currentCustomer.barber_id],
+      );
+
+      const nextCustomer = nextResult.rows[0];
+
+      ///////////////////////////////////////////
+      // START NEXT CUSTOMER
+      ///////////////////////////////////////////
+
+      if (!nextCustomer) {
+        await client.query("COMMIT");
+
+        return undefined;
+      }
+
+      const startedResult = await client.query(
+        `
+          UPDATE queue_entries
+          SET
+            status = 'in_service',
+            started_at = NOW()
+          WHERE id = $1
+          RETURNING *
+        `,
+        [nextCustomer.id],
+      );
+
+      await client.query("COMMIT");
+
+      return startedResult.rows[0];
+    } catch (error) {
+      await client.query("ROLLBACK");
+
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  ///////////////////////////////////////////
+  // UPDATE QUEUE
+  ///////////////////////////////////////////
+
   static async update(
     id: number,
     data: UpdateQueueInput,
@@ -157,14 +276,14 @@ export class QueueRepository {
 
         called_at = CASE
           WHEN $1 = 'called'
-          AND called_at IS NULL
+            AND called_at IS NULL
           THEN NOW()
           ELSE called_at
         END,
 
         started_at = CASE
           WHEN $1 = 'in_service'
-          AND started_at IS NULL
+            AND started_at IS NULL
           THEN NOW()
           ELSE started_at
         END,
@@ -197,8 +316,8 @@ export class QueueRepository {
 
   ///////////////////////////////////////////
   // DELETE QUEUE
-  // Remove queue entry permanently from database
   ///////////////////////////////////////////
+
   static async deleteById(id: number): Promise<QueueEntry | undefined> {
     const sql = `
       DELETE FROM queue_entries

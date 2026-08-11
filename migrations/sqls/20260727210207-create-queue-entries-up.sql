@@ -1,3 +1,45 @@
+-- CREATE TABLE queue_entries (
+--   id SERIAL PRIMARY KEY,
+
+--   barber_id INT NOT NULL,
+
+--   customer_id INT NOT NULL,
+
+--   status VARCHAR(50) NOT NULL DEFAULT 'waiting',
+
+--   joined_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+--   called_at TIMESTAMP,
+
+--   started_at TIMESTAMP,
+
+--   completed_at TIMESTAMP,
+
+--   cancelled_at TIMESTAMP,
+
+--   CONSTRAINT fk_queue_barber
+--     FOREIGN KEY (barber_id)
+--     REFERENCES barbers(id)
+--     ON DELETE CASCADE,
+
+--   CONSTRAINT fk_queue_customer
+--     FOREIGN KEY (customer_id)
+--     REFERENCES customers(id)
+--     ON DELETE CASCADE,
+
+--   CONSTRAINT queue_status_check
+--     CHECK (
+--       status IN (
+--         'waiting',
+--         'called',
+--         'in_service',
+--         'completed',
+--         'cancelled'
+--       )
+--     )
+-- );
+
+
 CREATE TABLE queue_entries (
   id SERIAL PRIMARY KEY,
 
@@ -7,15 +49,15 @@ CREATE TABLE queue_entries (
 
   status VARCHAR(50) NOT NULL DEFAULT 'waiting',
 
-  joined_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  called_at TIMESTAMP,
+  called_at TIMESTAMPTZ,
 
-  started_at TIMESTAMP,
+  started_at TIMESTAMPTZ,
 
-  completed_at TIMESTAMP,
+  completed_at TIMESTAMPTZ,
 
-  cancelled_at TIMESTAMP,
+  cancelled_at TIMESTAMPTZ,
 
   CONSTRAINT fk_queue_barber
     FOREIGN KEY (barber_id)

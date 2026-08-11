@@ -1,12 +1,12 @@
 import { QueueRepository } from "./queue.repository";
+
 import { QueueEntry, JoinQueueInput, UpdateQueueInput } from "./queue.types";
 
 export class QueueService {
   ///////////////////////////////////////////
   // JOIN QUEUE
-  // Check if customer already has an active queue entry
-  // Add customer to queue if no active entry exists
   ///////////////////////////////////////////
+
   static async joinQueue(data: JoinQueueInput): Promise<QueueEntry> {
     const existingEntry = await QueueRepository.getActiveByCustomerId(
       data.customer_id,
@@ -16,37 +16,61 @@ export class QueueService {
       throw new Error("CUSTOMER_ALREADY_IN_QUEUE");
     }
 
+    ///////////////////////////////////////////
+    // CHECK CURRENT IN-SERVICE CUSTOMER
+    ///////////////////////////////////////////
+
+    const currentCustomer = await QueueRepository.getCurrentInService(
+      data.barber_id,
+    );
+
+    ///////////////////////////////////////////
+    // FIRST CUSTOMER
+    ///////////////////////////////////////////
+
+    if (!currentCustomer) {
+      const queueEntry = await QueueRepository.joinQueue(data);
+
+      return QueueRepository.update(queueEntry.id, {
+        status: "in_service",
+      }) as Promise<QueueEntry>;
+    }
+
+    ///////////////////////////////////////////
+    // CUSTOMER AFTER CURRENT CUSTOMER
+    ///////////////////////////////////////////
+
     return QueueRepository.joinQueue(data);
   }
 
   ///////////////////////////////////////////
   // GET ALL QUEUE ENTRIES
-  // Return all queue entries
   ///////////////////////////////////////////
+
   static async getAll(): Promise<QueueEntry[]> {
     return QueueRepository.getAll();
   }
 
   ///////////////////////////////////////////
   // GET QUEUE ENTRY BY ID
-  // Find queue entry using unique queue id
   ///////////////////////////////////////////
+
   static async getById(id: number): Promise<QueueEntry | undefined> {
     return QueueRepository.getById(id);
   }
 
   ///////////////////////////////////////////
   // GET QUEUE BY BARBER
-  // Return active queue entries for a barber
   ///////////////////////////////////////////
+
   static async getByBarberId(barberId: number): Promise<QueueEntry[]> {
     return QueueRepository.getByBarberId(barberId);
   }
 
   ///////////////////////////////////////////
   // GET CUSTOMER ACTIVE QUEUE
-  // Return customer's current active queue entry
   ///////////////////////////////////////////
+
   static async getActiveByCustomerId(
     customerId: number,
   ): Promise<QueueEntry | undefined> {
@@ -55,8 +79,8 @@ export class QueueService {
 
   ///////////////////////////////////////////
   // GET NEXT WAITING CUSTOMER
-  // Return the first waiting customer for a barber
   ///////////////////////////////////////////
+
   static async getNextWaiting(
     barberId: number,
   ): Promise<QueueEntry | undefined> {
@@ -64,10 +88,19 @@ export class QueueService {
   }
 
   ///////////////////////////////////////////
-  // UPDATE QUEUE ENTRY
-  // Update queue status or assigned barber
-  // Return updated queue entry
+  // COMPLETE CURRENT CUSTOMER
   ///////////////////////////////////////////
+
+  static async completeCustomer(
+    queueId: number,
+  ): Promise<QueueEntry | undefined> {
+    return QueueRepository.completeCurrentCustomer(queueId);
+  }
+
+  ///////////////////////////////////////////
+  // UPDATE QUEUE ENTRY
+  ///////////////////////////////////////////
+
   static async update(
     id: number,
     data: UpdateQueueInput,
@@ -77,8 +110,8 @@ export class QueueService {
 
   ///////////////////////////////////////////
   // DELETE QUEUE ENTRY
-  // Remove queue entry permanently
   ///////////////////////////////////////////
+
   static async deleteById(id: number): Promise<QueueEntry | undefined> {
     return QueueRepository.deleteById(id);
   }
