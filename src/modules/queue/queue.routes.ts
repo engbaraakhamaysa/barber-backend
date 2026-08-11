@@ -103,4 +103,16 @@ router.delete(
   QueueController.deleteById,
 );
 
+///////////////////////////////////////////
+// COMPLETE CURRENT CUSTOMER
+// Complete current customer
+// Automatically start next waiting customer
+///////////////////////////////////////////
+
+router.post(
+  "/:id/complete",
+  authMiddleware,
+  authorize("barber", "admin"),
+  QueueController.completeCustomer,
+);
 export default router;
