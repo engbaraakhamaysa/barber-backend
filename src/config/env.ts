@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { SignOptions } from "jsonwebtoken";
 
 dotenv.config();
 
@@ -15,6 +16,17 @@ const env = {
   // Use port 3001 when PORT is not configured
   ///////////////////////////////////////////
   port: Number(process.env.PORT) || 3001,
+
+  ///////////////////////////////////////////
+  // JWT CONFIGURATION
+  // Define authentication token settings
+  ///////////////////////////////////////////
+  jwt: {
+    secret: process.env.JWT_SECRET || "",
+    expiresIn: (process.env.JWT_EXPIRES_IN || "1d") as NonNullable<
+      SignOptions["expiresIn"]
+    >,
+  },
 
   ///////////////////////////////////////////
   // DATABASE CONFIGURATION
