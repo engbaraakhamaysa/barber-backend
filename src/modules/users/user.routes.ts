@@ -7,6 +7,12 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
+///////////////////////////////////////////
+// GET ALL USERS ROUTE
+// Return all users
+// Accessible by admin only
+///////////////////////////////////////////
+
 router.get("/", authMiddleware, authorize("admin"), UserController.getAll);
 
 ///////////////////////////////////////////

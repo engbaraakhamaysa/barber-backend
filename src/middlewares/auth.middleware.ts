@@ -47,6 +47,21 @@ export const authMiddleware = (
 
     next();
   } catch (error) {
+    ///////////////////////////////////////////
+    // JWT configuration error
+    ///////////////////////////////////////////
+    if (
+      error instanceof Error &&
+      error.message === "JWT_SECRET_NOT_CONFIGURED"
+    ) {
+      return res.status(500).json({
+        message: "Authentication configuration error",
+      });
+    }
+
+    ///////////////////////////////////////////
+    // Invalid or expired token
+    ///////////////////////////////////////////
     return res.status(401).json({
       message: "Invalid or expired token",
     });
