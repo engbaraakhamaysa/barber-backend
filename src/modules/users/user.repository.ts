@@ -1,5 +1,5 @@
 import pool from "../../config/db";
-import { User, CreateUserInput, UpdateUserInput } from "./user.types";
+import type { User, CreateUserInput, UpdateUserInput } from "./user.types";
 
 export class UserRepository {
   ///////////////////////////////////////////

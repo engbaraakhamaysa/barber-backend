@@ -1,4 +1,4 @@
-import { UserRole } from "../users/user.types";
+import type { UserRole } from "../users/user.types";
 
 ///////////////////////////////////////////
 // AUTH USER
@@ -46,7 +46,7 @@ export interface AuthResponse {
 // Internal database data
 // Password is used only for verification
 ///////////////////////////////////////////
-export interface AuthUserRecord extends AuthUser {
-  password: string;
-  is_active: boolean;
-}
+// export interface AuthUserRecord extends AuthUser {
+//   password: string;
+//   is_active: boolean;
+// }
