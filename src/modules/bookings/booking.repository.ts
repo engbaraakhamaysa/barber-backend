@@ -246,7 +246,10 @@ export class BookingRepository {
 
 
         bs.barber_id,
-        bs.slot_time
+        bs.slot_time,
+
+        c.name AS customer_name,
+        c.phone AS customer_phone
 
 
       FROM bookings b
@@ -254,6 +257,9 @@ export class BookingRepository {
 
       INNER JOIN booking_slots bs
       ON b.slot_id = bs.id
+
+      INNER JOIN customers c
+      ON b.customer_id = c.id
 
 
       WHERE bs.barber_id=$1
